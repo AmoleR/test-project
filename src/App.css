@@ -31,3 +31,54 @@
     transform: rotate(360deg);
   }
 }
+
+.threed {
+  -webkit-transform: perspective(600px) rotateX(60deg);
+  -moz-transform: perspective(600px) rotateX(60deg);
+  -ms-transform: perspective(600px) rotateX(60deg);
+  -o-transform: perspective(600px) rotateX(60deg);
+  transform: perspective(600px) rotateX(60deg);
+}
+
+.bigHexagon {
+  position: absolute;
+  top: 0;
+  left: 50;
+  margin-left: -150px;
+  z-index: -100;
+  display: inline-block;
+}
+
+.bigHexagonTop {
+  float: left;
+  margin: 2px;
+  margin-right: 0px;
+  width: 0;
+  border-right: 400px solid #6C6;
+  border-top: 475px solid transparent;
+  border-bottom: 475px solid transparent;
+}
+
+.bigHexagonMiddle {
+  float: left;
+  margin: 2px;
+  margin-right: 0px;
+  margin-left: 0px;
+  width: 600px;
+  height: 950px;
+  background-color: #6C6;
+}
+
+.bigHexagonBottom {
+  float: left;
+  margin: 2px;
+  width: 0;
+  margin-left: 0px;
+  border-left: 400px solid #6C6;
+  border-top: 475px solid transparent;
+  border-bottom: 475px solid transparent;
+}
+
+.changeColor {
+  display: none;
+}

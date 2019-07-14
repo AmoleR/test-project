@@ -1,0 +1,11 @@
+.settlement {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  text-align: 'center';
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  transform: perspective(1px) translateY(-50%);
+  margin: 1px;
+}

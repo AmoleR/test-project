@@ -1,0 +1,36 @@
+.number {
+    margin: 2px;
+    width: 60px;
+    height: 60px;
+    text-align: 'center';
+    background-color: #efefc4;
+    margin-top: 0px;
+    border-radius: 50%;
+    position: relative;
+    top: 50%;
+    transform: perspective(1px) translateY(-50%);
+}
+.robber {
+    height: 60px;
+    width: 60px;
+    background-color: #bdbfc1;
+    border-radius: 50%;
+    margin-top: 0px;
+    text-align: 'center';
+    position: relative;
+    top: 50%;
+    transform: perspective(1px) translateY(-50%);
+}
+.dot {
+    height: 5px;
+    width: 5px;
+    background-color: #000000;
+    border-radius: 50%;
+    margin-top: 0px;
+    text-align: 'center';
+    display: inline-block;
+    position: relative;
+    top: 50%;
+    transform: perspective(1px) translateY(-50%);
+    margin: 1px;
+}
