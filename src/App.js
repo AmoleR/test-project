@@ -345,6 +345,14 @@ class App extends Component {
     this.nextPlayer = this.nextPlayer.bind(this);
     this.updateValidSettlementsBeforeGame = this.updateValidSettlementsBeforeGame.bind(this);
     this.updateValidRoadsBeforeGame = this.updateValidRoadsBeforeGame.bind(this);
+    this.openTradeMenu = this.openTradeMenu.bind(this);
+    this.exitTradeMenu = this.exitTradeMenu.bind(this);
+    this.tradeCommodityAway = this.tradeCommodityAway.bind(this);
+    this.openBuildMenu = this.openBuildMenu.bind(this);
+    this.buildRoad = this.buildRoad.bind(this);
+    this.exitBuildMenu = this.exitBuildMenu.bind(this);
+    this.updateValidRoadsAfterGame = this.updateValidRoadsAfterGame.bind(this);
+    this.buildSettlement = this.buildSettlement.bind(this);
 
     let settlementCurrentFill = this.state.settlementCurrentFill;
 
@@ -457,6 +465,11 @@ class App extends Component {
   updateValidSettlementsBeforeGame() {
     let settlementCurrentFill = this.state.settlementCurrentFill;
     for (let i = 0; i < 54; i ++) {
+      if (settlementCurrentFill[i] === 4 || settlementCurrentFill[i] === 5) {
+        settlementCurrentFill[i] = 4;
+      }
+    }
+    for (let i = 0; i < 54; i ++) {
       if (settlementCurrentFill[i] !== 4 && settlementCurrentFill[i] !== 5) {
         let adjacentSettlements = this.state.settlementList[i];
         for (let j = 0; j < adjacentSettlements.length; j ++) {
@@ -465,11 +478,34 @@ class App extends Component {
       }
     }
     this.setState({settlementCurrentFill: settlementCurrentFill});
+    return settlementCurrentFill;
+  }
+
+  updateValidSettlementsAfterGame() {
+    let settlementCurrentFill = this.updateValidSettlementsBeforeGame();
+    let validSettlements = 0;
+    for (let i = 0; i < 54; i ++) {
+      if (settlementCurrentFill[i] === 4) {
+        for (let j = 0; j < this.state.roadListFromSettlements[i].length; j ++) {
+          if (this.state.roadCurrentFill[this.state.roadListFromSettlements[i][j]] === this.state.currentPlayer) {
+            settlementCurrentFill[i] = 4;
+            validSettlements ++;
+            break;
+          }
+          else if (j === this.state.roadListFromSettlements[i].length - 1) {
+            settlementCurrentFill[i] = 5;
+          }
+        }
+      }
+    }
+    console.log(validSettlements)
+    this.setState({settlementCurrentFill: settlementCurrentFill});
+    return validSettlements;
   }
 
   updateValidRoadsBeforeGame(settlementJustPlaced) {
     let roadCurrentFill = this.state.roadCurrentFill;
-    for (let i = 0; i < 71; i ++) {
+    for (let i = 0; i < 72; i ++) {
       if (roadCurrentFill[i] === 4 || roadCurrentFill[i] === 5) {
         if (!this.state.roadListFromSettlements[settlementJustPlaced].includes(i)) {
           roadCurrentFill[i] = 5;
@@ -482,8 +518,27 @@ class App extends Component {
     this.setState({roadCurrentFill: roadCurrentFill});
   }
 
+  updateValidRoadsAfterGame() {
+    let roadCurrentFill = this.state.roadCurrentFill;
+    let validRoads = 0;
+    for (let i = 0; i < 72; i ++) {
+      if (roadCurrentFill[i] === 4 || roadCurrentFill[i] === 5) {
+        roadCurrentFill[i] = 5;
+        for (let j = 0; j < this.state.roadList[i].length; j ++) {
+          if (roadCurrentFill[this.state.roadList[i][j]] === this.state.currentPlayer) {
+            roadCurrentFill[i] = 4;
+            validRoads ++;
+            break;
+          }
+        }
+      }
+    }
+    this.setState({roadCurrentFill: roadCurrentFill});
+    return validRoads;
+  }
+
   passAllCards() {
-    let cardHand = this.state.cardHand;
+    let cardHand = {0: [0, 0, 0, 0, 0], 1: [0, 0, 0, 0, 0], 2: [0, 0, 0, 0, 0], 3: [0, 0, 0, 0, 0] };
     for (let i = 0; i < 54; i ++) {
       if (this.state.settlementCurrentFill[i] !== 4 && this.state.settlementCurrentFill[i] !== 5) {
         //this.state.settlementCurrentFill => Player Color
@@ -493,14 +548,13 @@ class App extends Component {
           //Our current value of resource (as a string) is this.state.commodityList[this.state.settlementListFromResources[i][j]]
           //Our current value of resource (as a integer) is parseInt(this.state.commodityList[this.state.settlementListFromResources[i][j]])
           let resource = parseInt(this.state.commodityList[this.state.settlementListFromResources[i][j]]);
-
           //Our current player is this.state.settlementCurrentFill[i]
           //Our current hand is cardHand[this.state.settlementCurrentFill[i]]
 
           //Logic:
           //If the resource is 5, break
           if(resource === 5) {
-            break;
+            continue;
           }
           //Else, add 1 to the value of our cardHand's resource
           cardHand[this.state.settlementCurrentFill[i]][resource] ++;
@@ -511,19 +565,18 @@ class App extends Component {
   }
 
   rollDice(currentPlayer) {
-    let toRoll = document.getElementsByClassName('rollDice');
-    for (let i = 0; i < toRoll.length; i++) {
-      toRoll[i].style.display = 'flex';
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'none';
+    }
+    if (this.state.victoryPoints[0] >= 10 || this.state.victoryPoints[1] >= 10 || this.state.victoryPoints[2] >= 10 || this.state.victoryPoints[3] >= 10) {
+      return;
     }
     let toRollButton = document.getElementById('rollDiceButton');
     let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
     toRollButton.style.border = '4px solid ' + playerColors[currentPlayer];
     let toRollDiv = document.getElementById('rollDiceDiv');
     toRollDiv.style.display = 'flex';
-    let toPlay = document.getElementsByClassName('playerTurn');
-    for (let i = 0; i < toPlay.length; i++) {
-      toPlay[i].style.display = 'none';
-    }
   }
 
   playTurn() {
@@ -531,15 +584,150 @@ class App extends Component {
     for (let i = 0; i < toPlay.length; i++) {
       toPlay[i].style.display = 'flex';
     }
-    let toFinish = document.getElementById('finishTurn');
     let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
-    toFinish.style.border = '4px solid ' + playerColors[this.state.currentPlayer];
-    let toRoll = document.getElementById('rollDiceDiv');
-    toRoll.style.display = 'none';
+    document.getElementById('finishTurn').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('trade').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('build').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('rollDiceDiv').style.display = 'none';
+  }
+
+  tradeCommodityAway(resource) {
+    let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][resource] -= 4;
+    this.setState({cardHand: cardHand});
+    let toTrade = document.getElementsByClassName('toTradePart1');
+    let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+    for (let i = 0; i < toTrade.length; i ++) {
+      toTrade[i].style.display = 'none';
+    }
+    let toNowTrade = document.getElementsByClassName('toTradePart2');
+    for (let i = 0; i < toNowTrade.length; i ++) {
+      toNowTrade[i].style.display = 'flex';
+    }
+    for (let i = 0; i < 5; i ++) {
+      if (i === resource) {
+        document.getElementById('get' + i).style.display = 'none';
+      }
+      else {
+        document.getElementById('get' + i).style.display = 'flex';
+        document.getElementById('get' + i).style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+      }
+    }
+  }
+
+  getCommodity(resource) {
+    let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][resource] ++;
+    this.setState({cardHand: cardHand});
+    let toTrade = document.getElementsByClassName('toTradePart2');
+    let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+    for (let i = 0; i < toTrade.length; i ++) {
+      toTrade[i].style.display = 'none';
+    }
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'flex';
+    }
+  }
+
+  openTradeMenu() {
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'none';
+    }
+    let toTrade = document.getElementsByClassName('toTradePart1');
+    let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+    for (let i = 0; i < toTrade.length; i ++) {
+      toTrade[i].style.display = 'flex';
+    }
+    for (let i = 0; i < 5; i ++)  {
+      document.getElementById('trade' + i).style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+      if (this.state.cardHand[this.state.currentPlayer][i] < 4) {
+        document.getElementById('trade' + i).disabled = true;
+      }
+      else {
+        document.getElementById('trade' + i).disabled = false;
+      }
+    }
+    document.getElementById('exitTrade').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+  }
+
+  exitTradeMenu() {
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'flex';
+    }
+    let toTrade = document.getElementsByClassName('toTradePart1');
+    for (let i = 0; i < toTrade.length; i ++) {
+      toTrade[i].style.display = 'none';
+    }
+  }
+
+  openBuildMenu() {
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'none';
+    }
+    let toBuild = document.getElementsByClassName('toBuild');
+    let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+    for (let i = 0; i < toBuild.length; i ++) {
+      toBuild[i].style.display = 'flex';
+    }
+    document.getElementById('buildRoad').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('buildSettlement').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('exitBuild').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    let validRoads = this.updateValidRoadsAfterGame();
+    if(this.state.cardHand[this.state.currentPlayer][2] < 1 || this.state.cardHand[this.state.currentPlayer][4] < 1 || validRoads <= 0) {
+      document.getElementById('buildRoad').disabled = true;
+    }
+    else {
+      document.getElementById('buildRoad').disabled = false;
+    }
+    let validSettlements = this.updateValidSettlementsAfterGame();
+    if(this.state.cardHand[this.state.currentPlayer][1] < 1 || this.state.cardHand[this.state.currentPlayer][2] < 1 || this.state.cardHand[this.state.currentPlayer][3] < 1 || this.state.cardHand[this.state.currentPlayer][4] < 1 || validSettlements <= 0) {
+      document.getElementById('buildSettlement').disabled = true;
+    }
+    else {
+      document.getElementById('buildSettlement').disabled = false;
+    }
+  }
+
+  exitBuildMenu() {
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'flex';
+    }
+    let toBuild = document.getElementsByClassName('toBuild');
+    for (let i = 0; i < toBuild.length; i ++) {
+      toBuild[i].style.display = 'none';
+    }
+  }
+
+  buildRoad() {
+    let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][2] -= 1;
+    cardHand[this.state.currentPlayer][4] -= 1;
+    let toBuild = document.getElementsByClassName('toBuild');
+    for (let i = 0; i < toBuild.length; i ++) {
+      toBuild[i].style.display = 'none';
+    }
+    this.setState({roadColor: this.state.currentPlayer, placeRoad: true, cardHand: cardHand});
+  }
+
+  buildSettlement() {
+    let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][2] -= 1;
+    cardHand[this.state.currentPlayer][4] -= 1;
+    let toBuild = document.getElementsByClassName('toBuild');
+    for (let i = 0; i < toBuild.length; i ++) {
+      toBuild[i].style.display = 'none';
+    }
+    let victoryPoints = this.state.victoryPoints;
+    victoryPoints[this.state.currentPlayer] ++;
+    this.setState({color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints});
   }
 
   diceRoll (numberOfDice) {
-    this.playTurn();
     let rolls = [];
     let rollSum = 0;
     for (let i = 0; i < numberOfDice; i++) {
@@ -577,6 +765,7 @@ class App extends Component {
     }
     console.log(cardHand);
     this.setState({cardHand: cardHand});
+    this.playTurn();
   }
 
   nextPlayer() {
@@ -620,37 +809,10 @@ class App extends Component {
     }
   }
 
-  passCardsAfterRoll(roll) {
-    //If it is a robber return
-    if (roll === 7) {
-      return;
-    }
-    //Interpret the roll as some affected Hexes
-    let affectedLetters = this.interpretRoll(roll);
-    //Looping through affectedLetters
-    for (let i = 0; i < affectedLetters.length; i ++) {
-      //affectedLetters[i] is the letter of the hex
-      //this.state.numberList.indexOf(affectedLetters[i]) is the hex number
-      //The list of settlements around the hex is this.state.resourceList[this.state.numberList.indexOf(affectedLetters[i])]
-      let listOfSettlements = this.state.resourceList[this.state.numberList.indexOf(affectedLetters[i])];
-      //Looping through each settlement
-      let cardHand = this.state.cardHand;
-      for (let j = 0; j < listOfSettlements.length; j ++) {
-        //Check if someone owns the settlement
-        if (this.state.settlementCurrentFill[listOfSettlements[j]] !== 4 && this.state.settlementCurrentFill[listOfSettlements[j]] !== 5) {
-          //The player who owns the settlement is settlementCurrentFill[listOfSettlements[j]]
-          //His hand is cardHand[this.state.settlementCurrentFill[listOfSettlements[j]]]
-          //The current commodity in question is this.state.commodityList[this.state.numberList.indexOf(affectedLetters[i])]
-          cardHand[this.state.settlementCurrentFill[listOfSettlements[j]]][this.state.commodityList[this.state.numberList.indexOf(affectedLetters[i])]] ++;
-        }
-      }
-      this.setState({cardHand: cardHand});
-    }
-  }
-
   continueGame() {
     this.passAllCards();
     this.rollDice(0);
+    document.getElementById('diceValue').style.display = 'flex';
   }
 
   updateSettlementFilled(id, color) {
@@ -659,7 +821,24 @@ class App extends Component {
     let settlementVisibility = this.state.settlementVisibility;
 
     if (this.state.colorOrder[this.state.colorPosition] === -1) {
-      this.setState({color: color, settlementplace: false, placeRoad: false, roadColor: color, showButton: false});
+      if(settlementCurrentFill[id] === color) {
+        settlementCurrentFill[id] = 4;
+        settlementVisibility[id] = false;
+      }
+
+      else if (settlementCurrentFill[id] !== 4) {
+        return;
+      }
+
+      else {
+        settlementCurrentFill[id] = color;
+        settlementVisibility[id] = true;
+        this.setState({color: color, settlementplace: false});
+      }
+
+      this.updateValidSettlementsAfterGame();
+      this.setState({settlementCurrentFill: settlementCurrentFill, settlementVisibility: settlementVisibility});
+      this.exitBuildMenu();
       return;
     }
 
@@ -711,12 +890,18 @@ class App extends Component {
 
     }
 
-    if (this.state.colorOrder[this.state.colorPosition + 1] === -1) {
+    if (this.state.colorOrder[this.state.colorPosition] === -1) {
+      this.setState({roadCurrentFill: roadCurrentFill, roadVisibility: roadVisibility, settlementplace: false,
+        placeRoad: false, showButton: false});
+      console.log(id);
+      this.exitBuildMenu();
+    }
+
+    else if (this.state.colorOrder[this.state.colorPosition + 1] === -1) {
       this.setState({roadCurrentFill: roadCurrentFill, roadVisibility: roadVisibility, settlementplace: false,
         placeRoad: false, color: this.state.colorOrder[this.state.colorPosition + 1],
         colorPosition: this.state.colorPosition + 1, showButton: false});
       this.continueGame();
-      console.log(this.state.cardHand);
     }
 
     else {
@@ -850,8 +1035,8 @@ class App extends Component {
     };
 
     return(
-
-      <div style={{textAlign:' center'}}>
+      <div>
+      <div style={{textAlign: 'center'}}>
 
         {/*<div>
           <img style = {{width: '700px'}} src = 'http://snowconmaine.com/main/wp-content/uploads/2018/01/catan2018.png'/>
@@ -1033,10 +1218,91 @@ class App extends Component {
             margin: '4px', backgroundColor: 'white'}} onClick = {() => this.nextPlayer()}>
               Done
             </button>
+            <button id='trade' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.openTradeMenu()}>
+              Trade
+            </button>
+            <button id='build' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.openBuildMenu()}>
+              Build
+            </button>
           </div>
         </div>
 
-        <div className='rollDice' style={{display: 'none', flexFlow: 'nowrap', marginLeft: '75%', marginTop: '-200px'}}>
+        <div className='toTradePart1' style={{display: 'none', flexFlow: 'nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+          <div style={{textAlign: 'center'}}>
+            <button id='trade0' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.tradeCommodityAway(0)}>
+              Trade Ore
+            </button>
+            <button id='trade1' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.tradeCommodityAway(1)}>
+              Trade Wheat
+            </button>
+            <button id='trade2' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.tradeCommodityAway(2)}>
+              Trade Wood
+            </button>
+            <br />
+            <button id='trade3' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.tradeCommodityAway(3)}>
+              Trade Sheep
+            </button>
+            <button id='trade4' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.tradeCommodityAway(4)}>
+              Trade Brick
+            </button>
+            <button id='exitTrade' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.exitTradeMenu()}>
+              Exit Trade
+            </button>
+          </div>
+        </div>
+
+        <div className='toTradePart2' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+          <div style={{textAlign: 'center'}}>
+            <button id='get0' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.getCommodity(0)}>
+              Get 1 Ore
+            </button>
+            <button id='get1' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.getCommodity(1)}>
+              Get 1 Wheat
+            </button>
+            <button id='get2' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.getCommodity(2)}>
+              Get 1 Wood
+            </button>
+            <br />
+            <button id='get3' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.getCommodity(3)}>
+              Get 1 Sheep
+            </button>
+            <button id='get4' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.getCommodity(4)}>
+              Get 1 Brick
+            </button>
+          </div>
+        </div>
+
+        <div className='toBuild' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+          <div style={{textAlign: 'center'}}>
+            <button id='buildRoad' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.buildRoad()}>
+              Build Road
+            </button>
+            <button id='buildSettlement' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.buildSettlement()}>
+              Build Settlement
+            </button>
+            <button id='exitBuild' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.exitBuildMenu()}>
+              Exit Build
+            </button>
+          </div>
+        </div>
+
+        <div id='diceValue' className='rollDice' style={{display: 'none', flexFlow: 'nowrap', marginLeft: '75%', marginTop: '-200px'}}>
           <div style = {{textAlign: 'center', display: 'float'}}>
             {this.state.rolls.map((roll, index) => <DiceImage roll={roll} key={index} />)}
           </div>
@@ -1069,6 +1335,7 @@ class App extends Component {
           <button class='changeSettlement' style = {{display: 'none', height: '100px', width: '100px', borderRadius: '50%', marginLeft: '50%'}}
           onClick={this.finishSettlements}>Finish Settlements</button>
       </div>*/}
+      </div>
       </div>
     );
   }
