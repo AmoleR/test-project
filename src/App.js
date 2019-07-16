@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import HexagonRow from './hexagonrow.js';
-import SettlementRow from './settlementrow.js';
+import SettlementRow from './settlementrow';
 import RoadRow from './roadRow.js';
 import one from "./assets/one.png";
 import two from "./assets/two.png";
@@ -21,7 +21,6 @@ function shuffleArray(array) {
   }
   return array;
 }
-
 
 class App extends Component {
   constructor () {
@@ -98,7 +97,7 @@ class App extends Component {
       },
       roadListFromSettlements: {
         0: [8, 15],
-        1: [6, 16],
+        1: [9, 16],
         2: [10, 17],
         3: [0, 15],
         4: [1, 8, 16],
@@ -318,7 +317,9 @@ class App extends Component {
       numberOfDice: null,
       rolls: [],
       rollSum: null,
-      currentPlayer: 0
+      currentPlayer: 0,
+      settlementType: [],
+      choosingCities: false
     };
     this.shuffleBoard = this.shuffleBoard.bind(this);
     this.resetBoard = this.resetBoard.bind(this);
@@ -353,6 +354,7 @@ class App extends Component {
     this.exitBuildMenu = this.exitBuildMenu.bind(this);
     this.updateValidRoadsAfterGame = this.updateValidRoadsAfterGame.bind(this);
     this.buildSettlement = this.buildSettlement.bind(this);
+    this.buildCity = this.buildCity.bind(this);
 
     let settlementCurrentFill = this.state.settlementCurrentFill;
 
@@ -385,6 +387,14 @@ class App extends Component {
     }
 
     this.setState({ settlementVisibility: settlementVisibility });
+
+    let settlementType = this.state.settlementType;
+
+    for (let i = 0; i < 54; i ++) {
+      settlementType[i] = 1;
+    }
+
+    this.setState({ settlementType: settlementType });
   }
 
   shuffleBoard (event) {
@@ -537,6 +547,18 @@ class App extends Component {
     return validRoads;
   }
 
+  updateValidCities() {
+    let validCities = 0;
+    for (let i = 0; i < 54; i ++) {
+      if (this.state.settlementCurrentFill[i] === this.state.currentPlayer) {
+        if (this.state.settlementType[i] === 1) {
+          validCities ++;
+        }
+      }
+    }
+    return validCities;
+  }
+
   passAllCards() {
     let cardHand = {0: [0, 0, 0, 0, 0], 1: [0, 0, 0, 0, 0], 2: [0, 0, 0, 0, 0], 3: [0, 0, 0, 0, 0] };
     for (let i = 0; i < 54; i ++) {
@@ -675,6 +697,7 @@ class App extends Component {
     }
     document.getElementById('buildRoad').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('buildSettlement').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('buildCity').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('exitBuild').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     let validRoads = this.updateValidRoadsAfterGame();
     if(this.state.cardHand[this.state.currentPlayer][2] < 1 || this.state.cardHand[this.state.currentPlayer][4] < 1 || validRoads <= 0) {
@@ -689,6 +712,13 @@ class App extends Component {
     }
     else {
       document.getElementById('buildSettlement').disabled = false;
+    }
+    let validCities = this.updateValidCities();
+    if(this.state.cardHand[this.state.currentPlayer][0] < 3 || this.state.cardHand[this.state.currentPlayer][1] < 2 || validCities <= 0) {
+      document.getElementById('buildCity').disabled = true;
+    }
+    else {
+      document.getElementById('buildCity').disabled = false;
     }
   }
 
@@ -716,7 +746,9 @@ class App extends Component {
 
   buildSettlement() {
     let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][1] -= 1;
     cardHand[this.state.currentPlayer][2] -= 1;
+    cardHand[this.state.currentPlayer][3] -= 1;
     cardHand[this.state.currentPlayer][4] -= 1;
     let toBuild = document.getElementsByClassName('toBuild');
     for (let i = 0; i < toBuild.length; i ++) {
@@ -725,6 +757,19 @@ class App extends Component {
     let victoryPoints = this.state.victoryPoints;
     victoryPoints[this.state.currentPlayer] ++;
     this.setState({color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints});
+  }
+
+  buildCity() {
+    let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][0] -= 3;
+    cardHand[this.state.currentPlayer][1] -= 2;
+    let toBuild = document.getElementsByClassName('toBuild');
+    for (let i = 0; i < toBuild.length; i ++) {
+      toBuild[i].style.display = 'none';
+    }
+    let victoryPoints = this.state.victoryPoints;
+    victoryPoints[this.state.currentPlayer] ++;
+    this.setState({color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints, choosingCities: true});
   }
 
   diceRoll (numberOfDice) {
@@ -759,7 +804,12 @@ class App extends Component {
         if (this.state.settlementCurrentFill[settlement] !== 4 && this.state.settlementCurrentFill[settlement] !== 5) {
           //His hand is cardhand[this.state.settlementCurrentFill[settlement]]
           //The commodity we increment is cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList(this.state.numberList.indexOf(letterArray[i]))]
-          cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList[this.state.numberList.indexOf(letterArray[i])]] ++;
+          if (this.state.settlementType[settlement] === 1) {
+            cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList[this.state.numberList.indexOf(letterArray[i])]] ++;
+          }
+          else {
+            cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList[this.state.numberList.indexOf(letterArray[i])]] += 2;
+          }
         }
       }
     }
@@ -821,13 +871,13 @@ class App extends Component {
     let settlementVisibility = this.state.settlementVisibility;
 
     if (this.state.colorOrder[this.state.colorPosition] === -1) {
-      if(settlementCurrentFill[id] === color) {
-        settlementCurrentFill[id] = 4;
-        settlementVisibility[id] = false;
-      }
-
-      else if (settlementCurrentFill[id] !== 4) {
-        return;
+      let settlementType = this.state.settlementType;
+      if (settlementCurrentFill[id] !== 4) {
+        if (!this.state.choosingCities) {
+            return;
+        }
+        settlementType[id] = 2;
+        this.setState({color: color, settlementplace: false, choosingCities: false});
       }
 
       else {
@@ -1053,12 +1103,12 @@ class App extends Component {
 
         <div style = {{display: 'inline-block', marginTop: '120px'}}>
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(0, 3)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(0, 3)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[0, 1, 2]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['250px', '140px', '140px']} verticalMargins = '-40px' />
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(3, 7)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(3, 7)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[3, 4, 5, 6]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['161px', '140px', '140px', '140px']} verticalMargins = '0px' />
@@ -1083,12 +1133,12 @@ class App extends Component {
             color={this.state.roadColor} placeRoad={this.state.placeRoad}
             roadVisibility={this.state.roadVisibility.slice(15, 18)} margin={'-235px'} roadStyle={2} roadNumber={2} />
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(7, 11)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(7, 11)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[7, 8, 9, 10]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['161px', '140px', '140px', '140px']} verticalMargins = '110px' />
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(11, 16)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(11, 16)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[11, 12, 13, 14, 15]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['75px', '140px', '140px', '140px', '140px']}/>
@@ -1107,12 +1157,12 @@ class App extends Component {
             color={this.state.roadColor} placeRoad={this.state.placeRoad}
             roadVisibility={this.state.roadVisibility.slice(28, 33)} margin={'-412px'} roadStyle={2} roadNumber={5} />
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(16, 21)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(16, 21)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[16, 17, 18, 19, 20]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['75px', '140px', '140px', '140px', '140px']} verticalMargins = '-45px' />
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(21, 27)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(21, 27)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled}
             id={[21, 22, 23, 24, 25, 26]} fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['-13px', '140px', '140px', '140px', '140px', '140px']}/>
@@ -1131,12 +1181,12 @@ class App extends Component {
             color={this.state.roadColor} placeRoad={this.state.placeRoad} margin={'-320px'}
             roadVisibility={this.state.roadVisibility.slice(44, 49)} roadStyle={2} roadNumber={5} />
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(27, 33)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(27, 33)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled}
             id={[27, 28, 29, 30, 31, 32]}  fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['-13px', '140px', '140px', '140px', '140px', '140px']} verticalMargins = '-40px'/>
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(33, 38)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(33, 38)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[33, 34, 35, 36, 37]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['75px', '140px', '140px', '140px', '140px']} verticalMargins = '0px' />
@@ -1157,12 +1207,12 @@ class App extends Component {
 
           <HexagonRow commodityArray = {commodityList.slice(12, 16)} letterArray = {numberList.slice(12, 16)}/>
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(38, 43)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(38, 43)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[38, 39, 40, 41, 42]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['75px', '140px', '140px', '140px', '140px']} verticalMargins = '-200px'/>
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(43, 47)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(43, 47)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[43, 44, 45, 46]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['162px', '140px', '140px', '140px']} verticalMargins = '620px'/>
@@ -1181,12 +1231,12 @@ class App extends Component {
 
           <HexagonRow commodityArray = {commodityList.slice(16, 19)} letterArray = {numberList.slice(16, 19)}/>
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(47, 50)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(47, 50)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[47, 48, 49]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['250px', '140px', '140px']} verticalMargins = '0px' />
 
-          <SettlementRow settlementVisibility={this.state.settlementVisibility.slice(50, 54)}
+          <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(50, 54)}
             placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[50, 51, 52, 53]}
             fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
             leftMargins = {['161px', '140px', '140px', '140px']} verticalMargins = '720px' />
@@ -1294,6 +1344,11 @@ class App extends Component {
             <button id='buildSettlement' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
             margin: '4px', backgroundColor: 'white'}} onClick = {() => this.buildSettlement()}>
               Build Settlement
+            </button>
+            <br />
+            <button id='buildCity' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+            margin: '4px', backgroundColor: 'white'}} onClick = {() => this.buildCity()}>
+              Build City
             </button>
             <button id='exitBuild' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
             margin: '4px', backgroundColor: 'white'}} onClick = {() => this.exitBuildMenu()}>
