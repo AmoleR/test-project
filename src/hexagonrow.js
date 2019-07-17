@@ -7,6 +7,14 @@ class HexagonRow extends Component{
         super()
     }
     render () {
+        if(this.props.commodityArray.length === 2) {
+            return(
+                <div style = {{display: 'flex', flexFlow: 'nowrap', marginLeft: '176px', marginTop: '-50px'}}>
+                    <Hexagon commodityType = {this.props.commodityArray[0]} letter = {this.props.letterArray[0]}/>
+                    <Hexagon commodityType = {this.props.commodityArray[1]} letter = {this.props.letterArray[1]}/>
+                </div>
+            );
+        }
         if(this.props.commodityArray.length === 3) {
             return(
                 <div style = {{display: 'flex', flexFlow: 'nowrap', marginLeft: '176px', marginTop: '-50px'}}>

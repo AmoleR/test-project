@@ -10,6 +10,17 @@
   margin: 1px;
 }
 
+.settlementExample {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  text-align: 'center';
+  display: inline-block;
+  position: relative;
+  transform: perspective(1px) translateY(-50%);
+  margin: 1px;
+}
+
 .city {
   height: 30px;
   width: 30px;
