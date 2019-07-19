@@ -152,7 +152,7 @@ class CatanGame extends Component {
         30: [24, 35, 36],
         31: [25, 36, 37],
         32: [26, 37],
-        33: [27, 28, 37],
+        33: [27, 28, 38],
         34: [28, 29, 39],
         35: [29, 30, 40],
         36: [30, 31, 41],
@@ -497,7 +497,9 @@ class CatanGame extends Component {
         * It is true if a turn is in progress
         * It is false otherwise
       */
-      turnStarted: false
+      turnStarted: false,
+      robberHex: 7,
+      toMoveRobber: false
     };
 
     //These are the binds of all of our functions
@@ -535,6 +537,11 @@ class CatanGame extends Component {
     this.finishPlayerTurn = this.finishPlayerTurn.bind(this);
     this.sum = this.sum.bind(this);
     this.createButtons = this.createButtons.bind(this);
+    this.discardCards = this.discardCards.bind(this);
+    this.moveRobber = this.moveRobber.bind(this);
+    this.robberMoved = this.robberMoved.bind(this);
+    this.stealCards = this.stealCards.bind(this);
+    this.takeACard = this.takeACard.bind(this);
 
     /*
       * We are setting each settlement as unfilled
@@ -951,12 +958,69 @@ class CatanGame extends Component {
     }
   }
 
+  discardCards() {
+
+  }
+
+  moveRobber() {
+    document.getElementById('rollDiceDiv').style.display = 'none';
+    this.setState({toMoveRobber: true});
+  }
+
+  stealCards(id) {
+    for (let i = 0; i < 4; i ++) {
+      document.getElementById('steal' + i).style.display = 'none';
+    }
+    let counter = 0;
+    for (let i = 0; i < this.state.resourceList[id].length; i ++) {
+      if (this.state.settlementCurrentFill[this.state.resourceList[id][i]] === 4 || this.state.settlementCurrentFill[this.state.resourceList[id][i]] === 5 || this.state.settlementCurrentFill[this.state.resourceList[id][i]] === this.state.currentPlayer) {
+        continue;
+      }
+      document.getElementById('toSteal').style.display = 'flex';
+      document.getElementById('steal' + this.state.settlementCurrentFill[this.state.resourceList[id][i]]).style.display = 'flex';
+      counter ++;
+    }
+    if (counter === 0) {
+      this.setState({toMoveRobber: false});
+      this.playTurn();
+    }
+  }
+
+  takeACard(player) {
+    let cardHand = this.state.cardHand;
+    let totalCards = this.sum(cardHand[player]);
+    let randomNumber = Math.floor(Math.random() * totalCards);
+    let sum = 0;
+    for (let i = 0; i < 5; i ++) {
+      sum += cardHand[player][i];
+      if (randomNumber < sum) {
+        cardHand[player][i] --;
+        cardHand[this.state.currentPlayer][i] ++;
+        break;
+      }
+    }
+    document.getElementById('toSteal').style.display = 'none';
+    this.setState({toMoveRobber: false, cardHand: cardHand});
+    this.playTurn();
+  }
+
+  robberMoved(id) {
+    if (!this.state.toMoveRobber) {
+      return;
+    }
+    this.setState({toMoveRobber: false, robberHex: id});
+    this.stealCards(id);
+  }
+
   finishPlayerTurn() {
     this.setState({turnStarted: true});
     if (this.state.rollSum !== 7) {
       let letterArray = this.interpretRoll(this.state.rollSum);
       let cardHand = this.state.cardHand;
       for (let i = 0; i < letterArray.length; i ++) {
+        if(this.state.robberHex === this.state.numberList.indexOf(letterArray[i])) {
+          continue;
+        }
         for (let j = 0; j < this.state.resourceList[this.state.numberList.indexOf(letterArray[i])].length; j ++ ) {
           let settlement = this.state.resourceList[this.state.numberList.indexOf(letterArray[i])][j];
           if (this.state.settlementCurrentFill[settlement] !== 4 && this.state.settlementCurrentFill[settlement] !== 5) {
@@ -971,8 +1035,12 @@ class CatanGame extends Component {
       }
       console.log(cardHand);
       this.setState({cardHand: cardHand});
+      this.playTurn();
     }
-    this.playTurn();
+    if (this.state.rollSum === 7) {
+      this.discardCards();
+      this.moveRobber();
+    }
   }
 
   diceRoll (numberOfDice) {
@@ -1214,7 +1282,6 @@ class CatanGame extends Component {
       numberList[robberPosition1] = ' ';
     }
 
-
     if (this.state.placeRoad) {
 
       let changeColor = document.getElementsByClassName('changeColor');
@@ -1419,7 +1486,7 @@ class CatanGame extends Component {
               fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
               leftMargins = {['75px', '140px', '140px', '140px', '140px']}/>
 
-            <HexagonRow commodityArray = {commodityList.slice(0, 3)} letterArray = {numberList.slice(0, 3)}/>
+            <HexagonRow handler={this.robberMoved} id = {[0, 1, 2]} robberHex = {this.state.robberHex} commodityArray = {commodityList.slice(0, 3)} letterArray = {numberList.slice(0, 3)}/>
 
             <RoadRow handler={this.updateRoadFilled} fillColors = {this.state.roadCurrentFill} id={roadID.slice(18, 23)}
               color={this.state.roadColor} placeRoad={this.state.placeRoad}
@@ -1443,7 +1510,7 @@ class CatanGame extends Component {
               id={[21, 22, 23, 24, 25, 26]} fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
               leftMargins = {['-13px', '140px', '140px', '140px', '140px', '140px']}/>
 
-            <HexagonRow commodityArray = {commodityList.slice(3, 7)} letterArray = {numberList.slice(3, 7)}/>
+            <HexagonRow handler={this.robberMoved} id = {[3, 4, 5, 6]} robberHex = {this.state.robberHex} commodityArray = {commodityList.slice(3, 7)} letterArray = {numberList.slice(3, 7)}/>
 
             <RoadRow handler={this.updateRoadFilled} fillColors = {this.state.roadCurrentFill} id={roadID.slice(33, 39)}
               color={this.state.roadColor} placeRoad={this.state.placeRoad} margin={'-455px'}
@@ -1467,7 +1534,7 @@ class CatanGame extends Component {
               fillColors = {this.state.settlementCurrentFill} color = {this.state.color}
               leftMargins = {['75px', '140px', '140px', '140px', '140px']} verticalMargins = '0px' />
 
-            <HexagonRow commodityArray = {commodityList.slice(7, 12)} letterArray = {numberList.slice(7, 12)}/>
+            <HexagonRow handler={this.robberMoved} id = {[7, 8, 9, 10, 11]} robberHex = {this.state.robberHex} commodityArray = {commodityList.slice(7, 12)} letterArray = {numberList.slice(7, 12)}/>
 
             <RoadRow handler={this.updateRoadFilled} fillColors = {this.state.roadCurrentFill} id={roadID.slice(49, 54)}
               color={this.state.roadColor} placeRoad={this.state.placeRoad} margin={'-367px'}
@@ -1481,7 +1548,7 @@ class CatanGame extends Component {
               color={this.state.roadColor} placeRoad={this.state.placeRoad} margin={'-233px'}
               roadVisibility={this.state.roadVisibility.slice(58, 62)} roadStyle={2} roadNumber={4} />
 
-            <HexagonRow commodityArray = {commodityList.slice(12, 16)} letterArray = {numberList.slice(12, 16)}/>
+            <HexagonRow handler={this.robberMoved} id = {[12, 13, 14, 15]} robberHex = {this.state.robberHex} commodityArray = {commodityList.slice(12, 16)} letterArray = {numberList.slice(12, 16)}/>
 
             <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(38, 43)}
               placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[38, 39, 40, 41, 42]}
@@ -1505,7 +1572,7 @@ class CatanGame extends Component {
               color={this.state.roadColor} placeRoad={this.state.placeRoad} margin={'-145px'}
               roadVisibility={this.state.roadVisibility.slice(69, 72)} roadStyle={2} roadNumber={3} />
 
-            <HexagonRow commodityArray = {commodityList.slice(16, 19)} letterArray = {numberList.slice(16, 19)}/>
+            <HexagonRow handler={this.robberMoved} id = {[17, 18, 19]} robberHex = {this.state.robberHex} commodityArray = {commodityList.slice(16, 19)} letterArray = {numberList.slice(16, 19)}/>
 
             <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(47, 50)}
               placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[47, 48, 49]}
@@ -1523,9 +1590,9 @@ class CatanGame extends Component {
           <br />
           <br />
 
-          <button className='placeRoads' onClick={this.shuffleBoard}>Shuffle Board</button>
+          {/*<button className='placeRoads' onClick={this.shuffleBoard}>Shuffle Board</button>
 
-          <button className='placeRoads' onClick={this.resetBoard}>Reset Board</button>
+          <button className='placeRoads' onClick={this.resetBoard}>Reset Board</button>*/}
 
           <button className='placeRoads' onClick={this.startGame}>Start Game</button>
 
@@ -1635,6 +1702,28 @@ class CatanGame extends Component {
               <button id='exitBuild' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
               margin: '4px', backgroundColor: 'white'}} onClick = {() => this.exitBuildMenu()}>
                 Exit Build
+              </button>
+            </div>
+          </div>
+
+          <div id="toSteal" className='toSteal' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+            <div style={{textAlign: 'center'}}>
+              <button id='steal0' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.takeACard(0)} >
+                Steal Purple
+              </button>
+              <button id='steal1' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.takeACard(1)} >
+                Steal Orange
+              </button>
+              <br />
+              <button id='steal2' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.takeACard(2)} >
+                Steal Blue
+              </button>
+              <button id='steal3' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.takeACard(3)} >
+                Steal Red
               </button>
             </div>
           </div>

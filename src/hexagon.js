@@ -26,6 +26,7 @@ class Hexagon extends Component{
         this.state = {
             hexagonFlipped: false
         }
+        this.onClick = this.onClick.bind(this);
     }
     mouseOver() {
         this.setState({hexagonFlipped: true})
@@ -33,15 +34,19 @@ class Hexagon extends Component{
     mouseOut() {
         this.setState({hexagonFlipped: false})
     }
+    onClick(event) {
+      this.props.handler(this.props.id);
+      event.preventDefault();
+    }
     render () {
         return (
             <div style={{cursor: 'pointer'}} onMouseOut = {() => this.mouseOut()}
             onMouseOver = {() => this.mouseOver()}>
-                <div className = 'hexagonTop' style={{borderBottom: '50px solid' + commodityColor(this.props.commodityType)}}/>
-                <div className = 'hexagonMiddle' style={{verticalAlign: 'textBottom', textAlign: 'center', backgroundColor: commodityColor(this.props.commodityType)}}>
-                    <Number letter = {this.props.letter}/>
+                <div className = 'hexagonTop' style={{borderBottom: '50px solid' + commodityColor(this.props.commodityType)}} onClick={this.onClick}/>
+                <div className = 'hexagonMiddle' style={{verticalAlign: 'textBottom', textAlign: 'center', backgroundColor: commodityColor(this.props.commodityType)}} onClick={this.onClick}>
+                    <Number id = {this.props.id} robberHex = {this.props.robberHex} letter = {this.props.letter}/>
                 </div>
-                <div className = 'hexagonBottom' style={{borderTop: '50px solid' + commodityColor(this.props.commodityType)}}/>
+                <div className = 'hexagonBottom' style={{borderTop: '50px solid' + commodityColor(this.props.commodityType)}} onClick={this.onClick}/>
             </div>
         );
     }

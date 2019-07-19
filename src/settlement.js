@@ -51,7 +51,7 @@ class Settlement extends Component{
                       <div id={'settlement' + this.props.id} className = 'settlement' style = {{display: seeSettlement, backgroundColor: '#ffffff',
                       border: '3px solid ' + playerColors[this.props.color],
                       boxShadow: '2px 2px 5px 0px '  + playerRGB[this.props.color], marginLeft: this.props.marginLeft,
-                      marginTop: this.props.marginTop}} onClick={this.fillSettlement} ></div>
+                      marginTop: this.props.marginTop}} onClick={this.fillSettlement} >  </div>
                   );
               }
               else {

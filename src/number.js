@@ -62,7 +62,17 @@ class Number extends Component{
         super();
     }
     render () {
-        if(this.props.letter !== ' ') {
+        if(this.props.robberHex === this.props.id) {
+          return (
+            <div className = 'robber' style={{display: 'inline-block'}}/>
+          );
+        }
+        else if (this.props.letter === ' ') {
+          return (
+            <div />
+          );
+        }
+        else {
             return (
                 <div className = 'number' style={{display:'inline-block', fontFamily: 'Times New Roman'}}>
                     <div style={{verticalAlign: 'textTop', fontSize: '10px'}}>
@@ -77,9 +87,6 @@ class Number extends Component{
                 </div>
             );
         }
-        return (
-            <div className = 'robber' style={{display: 'inline-block'}}/>
-        );
     }
 }
 
