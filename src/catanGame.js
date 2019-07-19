@@ -499,7 +499,11 @@ class CatanGame extends Component {
       */
       turnStarted: false,
       robberHex: 7,
-      toMoveRobber: false
+      toMoveRobber: false,
+      discardCards: false,
+      playersToDiscard: 0,
+      currentDiscarder: 4,
+      cardsLeft: 0
     };
 
     //These are the binds of all of our functions
@@ -542,6 +546,8 @@ class CatanGame extends Component {
     this.robberMoved = this.robberMoved.bind(this);
     this.stealCards = this.stealCards.bind(this);
     this.takeACard = this.takeACard.bind(this);
+    this.setDiscarder = this.setDiscarder.bind(this);
+    this.discardCommodity = this.discardCommodity.bind(this);
 
     /*
       * We are setting each settlement as unfilled
@@ -959,7 +965,68 @@ class CatanGame extends Component {
   }
 
   discardCards() {
+    let sum = 0;
+    document.getElementById('toDiscard').style.display = 'flex';
+    let counter = 0;
+    for (let i = 0; i < 4; i ++) {
+      sum = this.sum(this.state.cardHand[i]);
+      if(sum > 7) {
+        document.getElementById('discard' + i).style.display = 'flex';
+        counter ++;
+      }
+      else {
+        document.getElementById('discard' + i).style.display = 'none';
+      }
+    }
+    this.setState({discardCards: true, playersToDiscard: counter});
+    if (counter === 0) {
+      this.moveRobber();
+    }
+  }
 
+  setDiscarder(id) {
+    document.getElementById('toDiscard').style.display = 'none';
+    document.getElementById('discardResource').style.display = 'flex';
+    let cardsLeft = Math.floor(this.sum(this.state.cardHand[id])/2);
+    this.setState({currentDiscarder: id, cardsLeft: cardsLeft});
+    let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+    for (let i = 0; i < 5; i ++) {
+      document.getElementById('discardResource' + i).style.border = '4px solid ' + playerColors[this.state.currentDiscarder];
+    }
+    for (let i = 0; i < 5; i ++) {
+      if (this.state.cardHand[id][i] < 1) {
+        document.getElementById('discardResource' + i).disabled = true;
+      }
+      else {
+        document.getElementById('discardResource' + i).disabled = false;
+      }
+    }
+  }
+
+  discardCommodity(commodity) {
+    let cardHand = this.state.cardHand;
+    if (cardHand[this.state.currentDiscarder][commodity] < 1) {
+      return;
+    }
+    cardHand[this.state.currentDiscarder][commodity] --;
+    console.log(cardHand);
+    this.setState({cardHand: cardHand});
+    let playersToDiscard = this.state.playersToDiscard;
+    if (this.sum(cardHand[this.state.currentDiscarder]) <= this.state.cardsLeft) {
+        document.getElementById('toDiscard').style.display = 'flex';
+        document.getElementById('discardResource').style.display = 'none';
+        document.getElementById('discard' + this.state.currentDiscarder).style.display = 'none';
+        playersToDiscard --;
+        this.setState({playersToDiscard: playersToDiscard});
+    }
+    if (playersToDiscard === 0) {
+      this.moveRobber();
+    }
+    for (let i = 0; i < 5; i ++) {
+      if (cardHand[this.state.currentDiscarder][i] < 1) {
+        document.getElementById('discardResource' + i).disabled = true;
+      }
+    }
   }
 
   moveRobber() {
@@ -1724,6 +1791,54 @@ class CatanGame extends Component {
               <button id='steal3' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
               margin: '4px', backgroundColor: 'white'}} onClick = {() => this.takeACard(3)} >
                 Steal Red
+              </button>
+            </div>
+          </div>
+
+          <div id="toDiscard" className='toDiscard' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+            <div style={{textAlign: 'center'}}>
+              <button id='discard0' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.setDiscarder(0)} >
+                Discard Purple
+              </button>
+              <button id='discard1' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.setDiscarder(1)} >
+                Discard Orange
+              </button>
+              <br />
+              <button id='discard2' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.setDiscarder(2)} >
+                Discard Blue
+              </button>
+              <button id='discard3' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.setDiscarder(3)} >
+                Discard Red
+              </button>
+            </div>
+          </div>
+
+          <div id="discardResource" className='discardResource' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+            <div style={{textAlign: 'center'}}>
+              <button id='discardResource0' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.discardCommodity(0)} >
+                Discard Ore
+              </button>
+              <button id='discardResource1' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.discardCommodity(1)} >
+                Discard Wheat
+              </button>
+              <button id='discardResource2' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.discardCommodity(2)} >
+                Discard Wood
+              </button>
+              <br />
+              <button id='discardResource3' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.discardCommodity(3)} >
+                Discard Sheep
+              </button>
+              <button id='discardResource4' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.discardCommodity(4)} >
+                Discard Brick
               </button>
             </div>
           </div>
