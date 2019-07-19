@@ -9,6 +9,11 @@ import three from "./assets/three.png";
 import four from "./assets/four.png";
 import five from "./assets/five.png";
 import six from "./assets/six.png";
+import brick from './assets/brick.png';
+import sheep from './assets/sheep.png';
+import wood from './assets/wood.png';
+import wheat from './assets/wheat.png';
+import ore from './assets/ore.png';
 
 //Function to shuffle arrays
 function shuffleArray(array) {
@@ -528,6 +533,8 @@ class CatanGame extends Component {
     this.buildCity = this.buildCity.bind(this);
     this.stopDiceRoll = this.stopDiceRoll.bind(this);
     this.finishPlayerTurn = this.finishPlayerTurn.bind(this);
+    this.sum = this.sum.bind(this);
+    this.createButtons = this.createButtons.bind(this);
 
     /*
       * We are setting each settlement as unfilled
@@ -1144,6 +1151,44 @@ class CatanGame extends Component {
     }
   }
 
+  sum (array) {
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+      sum += array[i];
+    }
+    return sum
+  }
+
+  createButtons (cards) {
+    let cards_display = [];
+    for (let i = 0; i < cards[0]; i++) {
+      cards_display.push(
+        <img style = {{width: 150, resize: 'contain'}} src={ore} alt="my image"/>
+      );
+    }
+    for (let i = 0; i < cards[1]; i++) {
+      cards_display.push(
+        <img style = {{width: 150, resize: 'contain'}} src={wheat} alt="my image"/>
+      );
+    }
+    for (let i = 0; i < cards[2]; i++) {
+      cards_display.push(
+        <img style = {{width: 150, resize: 'contain'}} src={wood} alt="my image"/>
+      )
+    }
+    for (let i = 0; i < cards[3]; i++) {
+      cards_display.push(
+        <img style = {{width: 150, resize: 'contain'}} src={sheep} alt="my image"/>
+      );
+    }
+    for (let i = 0; i < cards[4]; i++) {
+      cards_display.push(
+        <img style = {{width: 150, resize: 'contain'}} src={brick} alt="my image"/>
+      );
+    }
+    return cards_display;
+  }
+
   render() {
 
     let commodityList = ['2', '3', '1', '4', '0', '4', '3', '5', '2', '1',
@@ -1266,6 +1311,58 @@ class CatanGame extends Component {
         return <img style={{margin: '10px', display: 'inline-block'}} className="dice-image" src={six} alt="6" />;
       }
     };
+
+    let displayCards = (<div />);
+
+    if(this.sum(this.state.cardHand[this.state.currentPlayer]) >= 10) {
+      displayCards = (
+          <div>
+          <div style = {{display: 'flex', flexFlow: 'row nowrap'}}>
+            <div>
+                <img style = {{width: 150, resize: 'contain'}} src={ore} alt="my image"/>
+              <div>
+                {this.state.cardHand[this.state.currentPlayer][0]}
+              </div>
+            </div>
+            <div>
+                <img style = {{width: 150, resize: 'contain'}} src={wheat} alt="my image"/>
+              <div>
+                {this.state.cardHand[this.state.currentPlayer][1]}
+              </div>
+            </div>
+            <div>
+                <img style = {{width: 150, resize: 'contain'}} src={wood} alt="my image"/>
+              <div>
+                {this.state.cardHand[this.state.currentPlayer][2]}
+              </div>
+            </div>
+            <div>
+                <img style = {{width: 150, resize: 'contain'}} src={sheep} alt="my image"/>
+              <div>
+                {this.state.cardHand[this.state.currentPlayer][3]}
+              </div>
+            </div>
+            <div>
+                <img style = {{width: 150, resize: 'contain'}} src={brick} alt="my image"/>
+              <div>
+                {this.state.cardHand[this.state.currentPlayer][4]}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    else {
+      displayCards = (
+        <div>
+        <div>
+          </div>
+          <div style = {{display: 'flex', flexFlow: 'row nowrap'}}>
+            {this.createButtons(this.state.cardHand[this.state.currentPlayer])}
+          </div>
+        </div>
+      );
+    }
 
     return(
       <div>
@@ -1550,6 +1647,12 @@ class CatanGame extends Component {
               {this.state.finalRoll.map((roll, index) => <DiceImage roll={roll} key={index} />)}
             </div>
           </div>
+
+        <div style={{textAlign: 'center', position: 'absolute', top: '110%', left: 0, right: 0, margin: 'auto'}}>
+          <div style={{display: 'inline-block', position: 'relative'}}>
+            {displayCards}
+          </div>
+        </div>
         </div>
       </div>
     );
