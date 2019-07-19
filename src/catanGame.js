@@ -10,6 +10,7 @@ import four from "./assets/four.png";
 import five from "./assets/five.png";
 import six from "./assets/six.png";
 
+//Function to shuffle arrays
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
       let j = Math.floor(Math.random() * (i + 1));
@@ -23,20 +24,95 @@ function shuffleArray(array) {
 class CatanGame extends Component {
   constructor () {
     super();
+    /*
+      * this.state is a JSON Object
+      * Each element is in the form key: value
+    */
     this.state = {
+      /*
+        * this.state.checked is a boolean
+        * It is true if the player chooses to shuffle the board
+        * It is false otherwise
+      */
       checked : false,
+      /*
+        * this.state.settlementplace is a boolean
+        * It is true if a player chooses to place a settlement
+        * It is false otherwise
+      */
       settlementplace: false,
+      /*
+        * this.state.color is an integer
+        * It is the color of the settlement that is currently being placed
+      */
       color: 4,
+      /*
+        * this.state.roadColor is an integer
+        * It is the color of the road that is currently being placed
+      */
       roadColor: 4,
+      /*
+        * this.state.placeRoad is a boolean
+        * It is true if a player chooses to place a road
+        * It is false otherwise
+      */
       placeRoad: false,
-      settlementColor: 4,
+      /*
+        * this.state.settlementCurrentFill is a JSON Object
+        * Each element is in the form key: value
+        * Key is the settlement id
+        * Value is the owner of the settlement (0 - 3), the unfilled settlement (4), or an invalid settlement (5)
+      */
       settlementCurrentFill: {},
+      /*
+        * this.state.roadCurrentFill is a JSON Object
+        * Each element is in the form key: value
+        * Key is the road id
+        * Value is the owner of the road (0 - 3), the unfilled road (4), or an invalid road (5)
+      */
       roadCurrentFill: {},
+      /*
+        * this.state.roadVisibility is an array
+        * Each element is a boolean
+        * Index is the road number
+        * Value is true if the road can currently be seen
+        * Value is false otherwise
+      */
       roadVisibility: [],
+      /*
+        * this.state.settlementVisibility is an array
+        * Each element is a boolean
+        * Index is the settlement number
+        * Value is true if the settlement can currently be seen
+        * Value is false otherwise
+      */
       settlementVisibility: [],
+      /*
+        * this.state.colorOrder is an array
+        * Each element is a integer
+        * Index is the turn number while placing the initial settlements
+        * Value is the player to place thier settlement
+      */
       colorOrder: [0, 1, 2, 3, 3, 2, 1, 0, -1],
+      /*
+        * this.state.colorPosition is an integer
+        * It is a counter for the array colorOrder
+      */
       colorPosition: 0,
+      /*
+        * this.state.showButton is a boolean
+        * It is true if we want to show the buttons for each color when building a settlement or road
+        * It is false otherwise
+        * Note this boolean is depricated so it is always false
+      */
       showButton: true,
+      /*
+        * this.state.settlementList is a JSON Object
+        * Each element is in the form key: value
+        * Key is the settlement id
+        * Value is an array
+        * Each element of value is a settlement id adjacent to the settlement with id key
+      */
       settlementList: {
         0: [3, 4],
         1: [4, 5],
@@ -93,6 +169,13 @@ class CatanGame extends Component {
         52: [45, 48, 49],
         53: [46, 49]
       },
+      /*
+        * this.state.roadListFromSettlements is a JSON Object
+        * Each element is in the form key: value
+        * Key is the settlement id
+        * Value is an array
+        * Each element of value is a road id adjacent to the settlement with id key
+      */
       roadListFromSettlements: {
         0: [8, 15],
         1: [9, 16],
@@ -149,6 +232,13 @@ class CatanGame extends Component {
         52: [64, 68, 70],
         53: [65, 71]
       },
+      /*
+        * this.state.roadList is a JSON Object
+        * Each element is in the form key: value
+        * Key is the road id
+        * Value is an array
+        * Each element of value is a road id adjacent to the road with id key
+      */
       roadList: {
         0: [4, 11, 15],
         1: [5, 8, 12, 16],
@@ -223,6 +313,13 @@ class CatanGame extends Component {
         70: [64, 67, 68],
         71: [65, 68]
       },
+      /*
+        * this.state.resourceList is a JSON Object
+        * Each element is in the form key: value
+        * Key is the resource hexagon id
+        * Value is an array
+        * Each element of value is a settlement id adjacent to the resource hexagon with id key
+      */
       resourceList: {
         0: [0, 3, 4, 7, 8, 12],
         1: [1, 4, 5, 8, 9, 13],
@@ -244,6 +341,13 @@ class CatanGame extends Component {
         17: [40, 44, 45, 48, 51, 52],
         18: [41, 45, 46, 49, 52, 53]
       },
+      /*
+        * this.state.settlementListFromResources is a JSON Object
+        * Each element is in the form key: value
+        * Key is the settlement id
+        * Value is an array
+        * Each element of value is a resource hexagon id adjacent to the settlement with id key
+      */
       settlementListFromResources: {
         0: [0],
         1: [1],
@@ -300,25 +404,98 @@ class CatanGame extends Component {
         52: [17, 18],
         53: [18]
       },
+      /*
+        * this.state.settlementList is a JSON Object
+        * Each element is in the form key: value
+        * Key is the player id
+        * Value is an array
+        * Each element of value is the number of cards of a certain commodity
+          * 0 is Ore
+          * 1 is Wheat
+          * 2 is Wood
+          * 3 is Sheep
+          * 4 is Brick
+      */
       cardHand: {
         0: [0, 0, 0, 0, 0],
         1: [0, 0, 0, 0, 0],
         2: [0, 0, 0, 0, 0],
         3: [0, 0, 0, 0, 0]
       },
+      /*
+        * this.state.commodityList is an array
+        * Index is the resource hexagon id
+        * Value is a string with the commodity of the resource hexagon on it
+          * 0 is Ore
+          * 1 is Wheat
+          * 2 is Wood
+          * 3 is Sheep
+          * 4 is Brick
+      */
       commodityList: ['2', '3', '1', '4', '0', '4', '3', '5',
       '2', '1', '2', '1', '4', '0', '3', '0', '0', '1', '2'],
+      /*
+        * this.state.victoryPoints is an array
+        * Index is the player id
+        * Value is the amount of victory points the player with id key has
+      */
       victoryPoints: [2, 2, 2, 2],
+      /*
+        * this.state.numberList is an array
+        * Index is the resource hexagon id
+        * Value is a string with the number of the resource hexagon on it
+      */
       numberList: ['I', 'H', 'G', 'J', 'P', 'O', 'F', ' ', 'Q',
       'R', 'N', 'E', 'K', 'L', 'M', 'D', 'A', 'B', 'C'],
-      dice: false,
+      /*
+        * this.state.numberOfDice is an integer
+        * It is the number of dice we roll on each turn
+        * Note this integer is depricated so it is always 2
+      */
       numberOfDice: null,
+      /*
+        * this.state.rolls is an array
+        * Index is the dice number
+        * Value is the roll of the dice
+      */
       rolls: [],
+      /*
+        * this.state.finalRoll is an array
+        * Index is the dice number
+        * Value is the final roll of the dice
+      */
+      finalRoll: [],
+      /*
+        * this.state.rollSum is an integer
+        * It is the sum of dice we roll on each turn
+      */
       rollSum: null,
+      /*
+        * this.state.currentPlayer is an integer
+        * It is the id of the player who is currently on his turn
+      */
       currentPlayer: 0,
+      /*
+        * this.state.settlementType is an array
+        * Index is the settlement id
+        * Value is an integer 1 (if it is a settlement) and 2 (if it is a city)
+      */
       settlementType: [],
-      choosingCities: false
+      /*
+        * this.state.choosingCities is a boolean
+        * It is true if we are placing cities
+        * It is false otherwise
+      */
+      choosingCities: false,
+      /*
+        * this.state.turnStarted is a boolean
+        * It is true if a turn is in progress
+        * It is false otherwise
+      */
+      turnStarted: false
     };
+
+    //These are the binds of all of our functions
     this.shuffleBoard = this.shuffleBoard.bind(this);
     this.resetBoard = this.resetBoard.bind(this);
     this.setColorPurple = this.setColorPurple.bind(this);
@@ -349,7 +526,12 @@ class CatanGame extends Component {
     this.updateValidRoadsAfterGame = this.updateValidRoadsAfterGame.bind(this);
     this.buildSettlement = this.buildSettlement.bind(this);
     this.buildCity = this.buildCity.bind(this);
+    this.stopDiceRoll = this.stopDiceRoll.bind(this);
+    this.finishPlayerTurn = this.finishPlayerTurn.bind(this);
 
+    /*
+      * We are setting each settlement as unfilled
+    */
     let settlementCurrentFill = this.state.settlementCurrentFill;
 
     for (let i = 0; i < 54; i ++) {
@@ -357,6 +539,10 @@ class CatanGame extends Component {
     }
 
     this.setState({settlementCurrentFill: settlementCurrentFill});
+
+    /*
+      * We are setting each road as unfilled
+    */
 
     let roadCurrentFill = this.state.roadCurrentFill;
 
@@ -366,6 +552,10 @@ class CatanGame extends Component {
 
     this.setState({roadCurrentFill: roadCurrentFill});
 
+    /*
+      * We are setting each road as invisible
+    */
+
     let roadVisibility = this.state.roadVisibility;
 
     for (let i = 0; i < 72; i ++) {
@@ -374,6 +564,10 @@ class CatanGame extends Component {
 
     this.setState({ roadVisibility: roadVisibility });
 
+    /*
+      * We are setting each settlement as invisible
+    */
+
     let settlementVisibility = this.state.settlementVisibility;
 
     for (let i = 0; i < 72; i ++) {
@@ -381,6 +575,10 @@ class CatanGame extends Component {
     }
 
     this.setState({ settlementVisibility: settlementVisibility });
+
+    /*
+      * We are setting each settlement as a regular settlement
+    */
 
     let settlementType = this.state.settlementType;
 
@@ -482,7 +680,6 @@ class CatanGame extends Component {
         }
       }
     }
-    console.log(validSettlements)
     this.setState({settlementCurrentFill: settlementCurrentFill});
     return validSettlements;
   }
@@ -735,7 +932,42 @@ class CatanGame extends Component {
     this.setState({color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints, choosingCities: true});
   }
 
+  stopDiceRoll() {
+    document.getElementById('changingDice').style.display = 'none';
+    document.getElementById('fixedDice').style.display = 'flex';
+    document.getElementById('rollDiceButton').style.display = 'inline-block';
+    document.getElementById('stopDiceButton').style.display = 'none';
+    if (!this.state.turnStarted) {
+      this.finishPlayerTurn();
+    }
+  }
+
+  finishPlayerTurn() {
+    this.setState({turnStarted: true});
+    if (this.state.rollSum !== 7) {
+      let letterArray = this.interpretRoll(this.state.rollSum);
+      let cardHand = this.state.cardHand;
+      for (let i = 0; i < letterArray.length; i ++) {
+        for (let j = 0; j < this.state.resourceList[this.state.numberList.indexOf(letterArray[i])].length; j ++ ) {
+          let settlement = this.state.resourceList[this.state.numberList.indexOf(letterArray[i])][j];
+          if (this.state.settlementCurrentFill[settlement] !== 4 && this.state.settlementCurrentFill[settlement] !== 5) {
+            if (this.state.settlementType[settlement] === 1) {
+              cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList[this.state.numberList.indexOf(letterArray[i])]] ++;
+            }
+            else {
+              cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList[this.state.numberList.indexOf(letterArray[i])]] += 2;
+            }
+          }
+        }
+      }
+      console.log(cardHand);
+      this.setState({cardHand: cardHand});
+    }
+    this.playTurn();
+  }
+
   diceRoll (numberOfDice) {
+    let number_of_rolls  = 20;
     let rolls = [];
     let rollSum = 0;
     for (let i = 0; i < numberOfDice; i++) {
@@ -744,30 +976,28 @@ class CatanGame extends Component {
     }
     this.setState({
       numberOfDice: numberOfDice,
-      rolls: rolls,
+      finalRoll: rolls,
       rollSum: rollSum
     });
-    if (rollSum === 7) {
-      return;
-    }
-    let letterArray = this.interpretRoll(rollSum);
-    let cardHand = this.state.cardHand;
-    for (let i = 0; i < letterArray.length; i ++) {
-      for (let j = 0; j < this.state.resourceList[this.state.numberList.indexOf(letterArray[i])].length; j ++ ) {
-        let settlement = this.state.resourceList[this.state.numberList.indexOf(letterArray[i])][j];
-        if (this.state.settlementCurrentFill[settlement] !== 4 && this.state.settlementCurrentFill[settlement] !== 5) {
-          if (this.state.settlementType[settlement] === 1) {
-            cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList[this.state.numberList.indexOf(letterArray[i])]] ++;
-          }
-          else {
-            cardHand[this.state.settlementCurrentFill[settlement]][this.state.commodityList[this.state.numberList.indexOf(letterArray[i])]] += 2;
-          }
+    document.getElementById('changingDice').style.display = 'inline-block';
+    document.getElementById('fixedDice').style.display = 'none';
+    document.getElementById('rollDiceButton').style.display = 'none';
+    document.getElementById('stopDiceButton').style.display = 'inline-block';
+    for (let i = 0; i < number_of_rolls; i++) {
+      setTimeout(() => {
+        let rolls = [];
+        for (let i = 0; i < numberOfDice; i++) {
+          rolls.push(Math.floor(Math.random() * 6) + 1);
         }
-      }
+        this.setState({
+          numberOfDice: numberOfDice,
+          rolls: rolls
+        })
+      },  200 * i);
     }
-    console.log(cardHand);
-    this.setState({cardHand: cardHand});
-    this.playTurn();
+    setTimeout(() => {
+      this.stopDiceRoll();
+    }, 200 * number_of_rolls + 200);
   }
 
   nextPlayer() {
@@ -775,7 +1005,7 @@ class CatanGame extends Component {
     currentPlayer ++;
     currentPlayer = currentPlayer % 4;
     this.rollDice(currentPlayer);
-    this.setState({currentPlayer: currentPlayer});
+    this.setState({turnStarted: false, currentPlayer: currentPlayer});
   }
 
   interpretRoll(roll) {
@@ -895,7 +1125,6 @@ class CatanGame extends Component {
     if (this.state.colorOrder[this.state.colorPosition] === -1) {
       this.setState({roadCurrentFill: roadCurrentFill, roadVisibility: roadVisibility, settlementplace: false,
         placeRoad: false, showButton: false});
-      console.log(id);
       this.exitBuildMenu();
     }
 
@@ -1203,9 +1432,15 @@ class CatanGame extends Component {
 
           <div id='rollDiceDiv' className='rollDice' style={{display: 'none', flexFlow: 'nowrap', marginLeft: '0%', marginTop: '-200px'}}>
             <div style={{textAlign: 'center'}}>
-              <button id='rollDiceButton' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
-              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.diceRoll(2)}>
-                Roll Dice
+              <button id='rollDiceButton' style = {{fontSize: '14pt', textAlign: 'center', display: 'inline-block', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px'}} onClick = {() => this.diceRoll(2)}>
+                Click to Roll Dice
+              </button>
+            </div>
+            <div style={{textAlign: 'center'}}>
+              <button id='stopDiceButton' style = {{fontSize: '14pt', textAlign: 'center', display: 'none', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px'}} onClick = {() => this.stopDiceRoll()}>
+                Click to Stop Dice
               </button>
             </div>
           </div>
@@ -1306,8 +1541,11 @@ class CatanGame extends Component {
           </div>
 
           <div id='diceValue' className='rollDice' style={{display: 'none', flexFlow: 'nowrap', marginLeft: '75%', marginTop: '-200px'}}>
-            <div style = {{textAlign: 'center', display: 'float'}}>
+            <div id='changingDice' style = {{textAlign: 'center'}}>
               {this.state.rolls.map((roll, index) => <DiceImage roll={roll} key={index} />)}
+            </div>
+            <div id='fixedDice' style = {{textAlign: 'center', display: 'none'}}>
+              {this.state.finalRoll.map((roll, index) => <DiceImage roll={roll} key={index} />)}
             </div>
           </div>
         </div>
