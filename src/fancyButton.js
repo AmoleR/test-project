@@ -3,20 +3,32 @@ import './fancyButton.css';
 
 class FancyButton extends React.Component {
 
+  constructor() {
+    super();
+    this.onClick = this.onClick.bind(this);
+  }
+
+  onClick() {
+    document.getElementById('myBar').style.display = 'inline-block'
+    let elem = document.getElementById("myBar");
+    let width = 1;
+    let id = setInterval(frame, 20);
+    function frame() {
+      if (width >= 90) {
+        clearInterval(id);
+      } else {
+        width++;
+        elem.style.width = width + '%';
+      }
+    }
+  }
+
   render() {
     return (
       <div id="mainDiv">
-        <div id="wrapper">
-        <a href="/play" class="my-super-cool-btn">
-          <div class="dots-container">
-            <div class="dot1"></div>
-            <div class="dot1"></div>
-            <div class="dot1"></div>
-            <div class="dot1"></div>
-          </div>
-          <span>Play Catan!</span>
-        </a>
-        </div>
+        <div class="button" onClick={this.onClick}>Play Catan</div>
+        <br />
+        <div style={{display: 'none'}} id="myBar"></div>
       </div>
     );
   }

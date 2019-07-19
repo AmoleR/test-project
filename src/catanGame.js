@@ -321,8 +321,6 @@ class CatanGame extends Component {
     };
     this.shuffleBoard = this.shuffleBoard.bind(this);
     this.resetBoard = this.resetBoard.bind(this);
-    //this.placeSettlements = this.placeSettlements.bind(this);
-    //this.finishSettlements = this.finishSettlements.bind(this);
     this.setColorPurple = this.setColorPurple.bind(this);
     this.setColorOrange = this.setColorOrange.bind(this);
     this.setColorBlue = this.setColorBlue.bind(this);
