@@ -755,8 +755,10 @@ class CatanGame extends Component {
       return;
     }
     let toRollButton = document.getElementById('rollDiceButton');
+    let toStopButton = document.getElementById('stopDiceButton');
     let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
     toRollButton.style.border = '4px solid ' + playerColors[currentPlayer];
+    toStopButton.style.border = '4px solid ' + playerColors[currentPlayer];
     let toRollDiv = document.getElementById('rollDiceDiv');
     toRollDiv.style.display = 'flex';
   }
