@@ -1926,7 +1926,7 @@ class CatanGame extends Component {
               color={this.state.roadColor} placeRoad={this.state.placeRoad} margin={'-145px'}
               roadVisibility={this.state.roadVisibility.slice(69, 72)} roadStyle={2} roadNumber={3} />
 
-            <HexagonRow handler={this.robberMoved} id = {[17, 18, 19]} robberHex = {this.state.robberHex} commodityArray = {commodityList.slice(16, 19)} letterArray = {numberList.slice(16, 19)}/>
+            <HexagonRow handler={this.robberMoved} id = {[16, 17, 18]} robberHex = {this.state.robberHex} commodityArray = {commodityList.slice(16, 19)} letterArray = {numberList.slice(16, 19)}/>
 
             <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(47, 50)}
               placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[47, 48, 49]}
