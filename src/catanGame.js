@@ -564,7 +564,21 @@ class CatanGame extends Component {
           * 1 is no cards selected yet
           * 2 is at least one card selected
       */
-      yearOfPlentyPart: 2
+      yearOfPlentyPart: 2,
+      twoToOneHarborList: {
+        0: [11, 16],
+        1: [33, 38],
+        2: [48, 52],
+        3: [1, 5],
+        4: [42, 46]
+      },
+      initialTradingValues: {
+        0: [4, 4, 4, 4, 4],
+        1: [4, 4, 4, 4, 4],
+        2: [4, 4, 4, 4, 4],
+        3: [4, 4, 4, 4, 4]
+      },
+      threeToOneHarborList: [0, 3, 10, 15, 26, 32, 47, 50]
     };
 
     //These are the binds of all of our functions
@@ -862,7 +876,7 @@ class CatanGame extends Component {
 
   tradeCommodityAway(resource) {
     let cardHand = this.state.cardHand;
-    cardHand[this.state.currentPlayer][resource] -= 4;
+    cardHand[this.state.currentPlayer][resource] -= this.state.initialTradingValues[this.state.currentPlayer][resource];
     this.setState({cardHand: cardHand});
     let toTrade = document.getElementsByClassName('toTradePart1');
     let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
@@ -926,7 +940,7 @@ class CatanGame extends Component {
     }
     for (let i = 0; i < 5; i ++)  {
       document.getElementById('trade' + i).style.border = '4px solid ' + playerColors[this.state.currentPlayer];
-      if (this.state.cardHand[this.state.currentPlayer][i] < 4) {
+      if (this.state.cardHand[this.state.currentPlayer][i] < this.state.initialTradingValues[this.state.currentPlayer][i]) {
         document.getElementById('trade' + i).disabled = true;
       }
       else {
@@ -1492,11 +1506,27 @@ class CatanGame extends Component {
         settlementType[id] = 2;
         this.setState({color: color, settlementplace: false, choosingCities: false});
       }
-
       else {
         settlementCurrentFill[id] = color;
         settlementVisibility[id] = true;
         this.setState({color: color, settlementplace: false});
+      }
+      for (let i = 0; i < 5; i ++) {
+        if(this.state.twoToOneHarborList[i].includes(id)) {
+          let initialTradingValues = this.state.initialTradingValues;
+          initialTradingValues[color][i] = 2;
+          this.setState({initialTradingValues: initialTradingValues});
+        }
+      }
+      if (this.state.threeToOneHarborList.includes(id)) {
+        let initialTradingValues = this.state.initialTradingValues;
+        for (let j = 0; j < 5; j ++) {
+          if(initialTradingValues[color][j] === 2) {
+            continue;
+          }
+          initialTradingValues[color][j] = 3;
+        }
+        this.setState({initialTradingValues: initialTradingValues});
       }
 
       this.updateValidSettlementsAfterGame();
@@ -1509,11 +1539,6 @@ class CatanGame extends Component {
       return;
     }
 
-    if(settlementCurrentFill[id] === color) {
-      settlementCurrentFill[id] = 4;
-      settlementVisibility[id] = false;
-    }
-
     else if (settlementCurrentFill[id] !== 4) {
       return;
     }
@@ -1522,6 +1547,25 @@ class CatanGame extends Component {
       settlementCurrentFill[id] = color;
       settlementVisibility[id] = true;
       this.setState({color: color, settlementplace: false, placeRoad: true, roadColor: color});
+    }
+
+    for (let i = 0; i < 5; i ++) {
+      if(this.state.twoToOneHarborList[i].includes(id)) {
+        let initialTradingValues = this.state.initialTradingValues;
+        initialTradingValues[color][i] = 2;
+        this.setState({initialTradingValues: initialTradingValues});
+      }
+    }
+
+    if (this.state.threeToOneHarborList.includes(id)) {
+      let initialTradingValues = this.state.initialTradingValues;
+      for (let j = 0; j < 5; j ++) {
+        if(initialTradingValues[color][j] === 2) {
+          continue;
+        }
+        initialTradingValues[color][j] = 3;
+      }
+      this.setState({initialTradingValues: initialTradingValues});
     }
 
     this.updateValidSettlementsBeforeGame();
