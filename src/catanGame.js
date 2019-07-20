@@ -540,7 +540,7 @@ class CatanGame extends Component {
           * 1 is Year of Plenty
           * 2 is Monopoly
           * 3 is Road Building
-          * 4 is Governer's House
+          * 4 is Palace
           * 5 is Market
           * 6 is Library
           * 7 is University
@@ -856,6 +856,7 @@ class CatanGame extends Component {
     document.getElementById('finishTurn').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('trade').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('build').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('developmentCard').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('rollDiceDiv').style.display = 'none';
   }
 
@@ -1224,6 +1225,14 @@ class CatanGame extends Component {
       }
     }
     this.setState({developmentCardsArray: developmentCardsArray, victoryPoints: victoryPoints});
+    let toPlay = document.getElementsByClassName('playerTurn');
+    let toDevelop = document.getElementsByClassName('toPlayDevelopmentCard');
+    for (let i = 0; i < toDevelop.length; i ++) {
+      toDevelop[i].style.display = 'none';
+    }
+    for (let i = 0; i < toPlay.length; i ++) {
+      toPlay[i].style.display = 'flex';
+    }
   }
 
   stopDiceRoll() {
@@ -1971,7 +1980,7 @@ class CatanGame extends Component {
                 Build
               </button>
               <div className="break" />
-              <button id='build' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              <button id='developmentCard' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
               margin: '4px', backgroundColor: 'white'}} onClick = {() => this.openDevelopmentCardMenu()}>
                 Play Dev Card
               </button>
