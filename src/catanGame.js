@@ -547,7 +547,7 @@ class CatanGame extends Component {
           * 8 is Chapel
       */
       developmentCardsArray: {
-        0: [0, 0, 1, 0, 0, 0, 0, 0, 0],
+        0: [0, 0, 0, 0, 0, 0, 0, 0, 0],
         1: [0, 0, 0, 0, 0, 0, 0, 0, 0],
         2: [0, 0, 0, 0, 0, 0, 0, 0, 0],
         3: [0, 0, 0, 0, 0, 0, 0, 0, 0]
