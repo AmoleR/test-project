@@ -14,16 +14,17 @@ import sheep from './assets/sheep.png';
 import wood from './assets/wood.png';
 import wheat from './assets/wheat.png';
 import ore from './assets/ore.png';
-import knight from './assets/knight.png';
-import monopoly from './assets/monopoly.png';
-import yearofplenty from './assets/yearofplenty.png';
-import roadbuilding from './assets/roadbuilding.png';
-import palace from './assets/palace.png';
-import market from './assets/market.png';
-import chapel from './assets/chapel.png';
-import university from './assets/university.png';
-import library from './assets/library.png';
+import knight from './assets/knight.png'
+import monopoly from './assets/monopoly.png'
+import yearofplenty from './assets/yearofplenty.png'
+import roadbuilding from './assets/roadbuilding.png'
+import palace from './assets/palace.png'
+import market from './assets/market.png'
+import chapel from './assets/chapel.png'
+import university from './assets/university.png'
+import library from './assets/library.png'
 import Confetti from 'react-confetti';
+import { Redirect } from 'react-router-dom';
 
 //Function to shuffle arrays
 function shuffleArray(array) {
@@ -1079,7 +1080,6 @@ class CatanGame extends Component {
     victoryPoints[this.state.currentPlayer] ++;
     let detailedVictoryPoints = this.state.detailedVictoryPoints;
     detailedVictoryPoints[this.state.currentPlayer][0] --;
-    console.log(detailedVictoryPoints[this.state.currentPlayer][0])
     detailedVictoryPoints[this.state.currentPlayer][1] ++;
     this.setState({detailedVictoryPoints: detailedVictoryPoints, color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints, choosingCities: true});
   }
@@ -1210,8 +1210,7 @@ class CatanGame extends Component {
     developmentCardsArray[this.state.currentPlayer][1] --;
     let developmentCardPlayHistory = this.state.developmentCardPlayHistory;
     developmentCardPlayHistory.push([this.state.currentPlayer, 'Year Of Plenty']);
-    this.setState({developmentCardsArray: developmentCardsArray, developmentCardPlayHistory: developmentCardPlayHistory});
-  }
+    this.setState({developmentCardsArray: developmentCardsArray, developmentCardPlayHistory: developmentCardPlayHistory});  }
 
   playMonopoly() {
     let monopoly = document.getElementsByClassName('monopoly');
@@ -1551,6 +1550,7 @@ class CatanGame extends Component {
     document.getElementById('diceValue').style.display = 'flex';
     document.getElementById('detailedVictoryPoints').style.display = 'flex';
     document.getElementById('developmentCardPlayHistory').style.display = 'flex';
+    document.getElementById('currentTurn').style.display = 'flex';
   }
 
   updateSettlementFilled(id, color) {
@@ -1573,6 +1573,7 @@ class CatanGame extends Component {
         settlementVisibility[id] = true;
         this.setState({color: color, settlementplace: false});
       }
+
       for (let i = 0; i < 5; i ++) {
         if(this.state.twoToOneHarborList[i].includes(id)) {
           let initialTradingValues = this.state.initialTradingValues;
@@ -1916,6 +1917,67 @@ class CatanGame extends Component {
     let displayCards = (<div />);
     let displayDevCards = (<div />);
 
+    /*let currentColor = ''
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'solid purple'
+    }
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'solid orange'
+    }
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'solid blue'
+    }
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'solid red'
+    }
+
+    let currentTurn = ''
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'Purple\'s  Turn'
+    }
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'Orange\'s  Turn'
+    }
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'Blue\'s  Turn'
+    }
+    if(this.state.currentPlayer === 0)  {
+      currentColor = 'Red\'s  Turn'
+    }*/
+
+    let currentTurn = (<div />);
+
+    if(this.state.currentPlayer === 0) {
+      currentTurn = (
+      <div style = {{color: 'purple'}}>
+        Purple's Turn
+      </div>
+      );
+    }
+    if(this.state.currentPlayer === 1) {
+      currentTurn = (
+      <div style = {{color: 'orange'}}>
+        Orange's Turn
+      </div>
+      );
+    }
+    if(this.state.currentPlayer === 2) {
+      currentTurn = (
+      <div style = {{color: 'blue'}}>
+        Blue's Turn
+      </div>
+      );
+    }
+    if(this.state.currentPlayer === 3) {
+      currentTurn = (
+      <div style = {{color: 'red'}}>
+        Red's Turn
+      </div>
+      );
+    }
+
+
+
     if(this.sum(this.state.cardHand[this.state.currentPlayer]) >= 10) {
       displayCards = (
           <div>
@@ -2046,25 +2108,25 @@ class CatanGame extends Component {
 
           </div>
 
-          <div style={{position: 'absolute', top: '34%', left: '23%'}} className='harbor'>
+          <div style={{position: 'absolute', top: '35.5%', left: '23%'}} className='harbor'>
             Ore
             <br/>
             2:1
           </div>
 
-          <div style={{position: 'absolute', top: '67%', left: '23%'}} className='harbor'>
+          <div style={{position: 'absolute', top: '70%', left: '23%'}} className='harbor'>
             Wheat
             <br/>
             2:1
           </div>
 
-          <div style={{position: 'absolute', top: '95%', left: '52%', transform: 'rotate(330deg)'}} className='harbor'>
+          <div style={{position: 'absolute', top: '101%', left: '52%', transform: 'rotate(330deg)'}} className='harbor'>
             Wood
             <br/>
             2:1
           </div>
 
-          <div style={{position: 'absolute', top: '78.5%', left: '68.5%', transform: 'rotate(330deg)'}} className='harbor'>
+          <div style={{position: 'absolute', top: '82.5%', left: '68.5%', transform: 'rotate(330deg)'}} className='harbor'>
             Brick
             <br/>
             2:1
@@ -2082,13 +2144,13 @@ class CatanGame extends Component {
             3:1
           </div>
 
-          <div style={{position: 'absolute', top: '95%', left: '33%', transform: 'rotate(30deg)'}} className='harbor'>
+          <div style={{position: 'absolute', top: '101%', left: '33%', transform: 'rotate(30deg)'}} className='harbor'>
             ?
             <br/>
             3:1
           </div>
 
-          <div style={{position: 'absolute', top: '50.5%', left: '78.5%'}} className='harbor'>
+          <div style={{position: 'absolute', top: '52%', left: '78.5%'}} className='harbor'>
             ?
             <br/>
             3:1
@@ -2101,6 +2163,12 @@ class CatanGame extends Component {
           </div>
 
           <div style = {{display: 'inline-block', marginTop: '120px'}}>
+
+            <header>
+              <div id = 'currentTurn' style = {{display: 'none', position: 'absolute', left: '10%', top: '5%'}}>
+                <h1>{currentTurn}</h1>
+              </div>
+            </header>
 
             <SettlementRow settlementType={this.state.settlementType} settlementVisibility={this.state.settlementVisibility.slice(0, 3)}
               placeSettlement={this.state.settlementplace}  handler={this.updateSettlementFilled} id={[0, 1, 2]}
@@ -2506,12 +2574,12 @@ class CatanGame extends Component {
             </div>
           </div>
 
-        <div id = 'playerCards' style={{textAlign: 'center', position: 'absolute', top: '110%', left: 0, right: 0, margin: 'auto'}}>
+        <div id = 'playerCards' style={{textAlign: 'center', position: 'absolute', top: '115%', left: 0, right: 0, margin: 'auto'}}>
           <div style={{display: 'inline-block', position: 'relative'}}>
             {displayCards}
           </div>
         </div>
-        <div id = 'playerDevCards' style={{textAlign: 'center', position: 'absolute', top: '140%', left: 0, right: 0, margin: 'auto'}}>
+        <div id = 'playerDevCards' style={{textAlign: 'center', position: 'absolute', top: '145%', left: 0, right: 0, margin: 'auto'}}>
           <div style={{display: 'inline-block', position: 'relative'}}>
             {displayDevCards}
           </div>
@@ -2570,14 +2638,14 @@ class CatanGame extends Component {
             </tbody>
           </table>
         </div>
-
         </div>
+
         <div id='confetti' style = {{display: 'none'}}>
           <Confetti style={{zIndex: '100'}}>
             width={'100%'}
             height={'100%'}
           </Confetti>
-          </div>
+      </div>
       </div>
     );
   }
