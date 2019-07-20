@@ -1146,6 +1146,7 @@ class CatanGame extends Component {
     }
     let developmentCardsArray = this.state.developmentCardsArray;
     developmentCardsArray[this.state.currentPlayer][0] --;
+    this.setState({developmentCardsArray: developmentCardsArray});
     this.moveRobber();
   }
 
@@ -1159,6 +1160,9 @@ class CatanGame extends Component {
     for (let i = 0; i < toTrade.length; i ++) {
       toTrade[i].style.display = 'flex';
     }
+    let developmentCardsArray = this.state.developmentCardsArray;
+    developmentCardsArray[this.state.currentPlayer][1] --;
+    this.setState({developmentCardsArray: developmentCardsArray});
   }
 
   playMonopoly() {
@@ -1170,6 +1174,9 @@ class CatanGame extends Component {
     for (let i = 0; i < monopoly.length; i ++) {
       monopoly[i].style.display = 'flex';
     }
+    let developmentCardsArray = this.state.developmentCardsArray;
+    developmentCardsArray[this.state.currentPlayer][2] --;
+    this.setState({developmentCardsArray: developmentCardsArray});
   }
 
   monopoly(resource) {
@@ -1181,7 +1188,7 @@ class CatanGame extends Component {
         cardHand[i] = 0;
       }
     }
-    cardHand[this.state.currentPlayer] = sum;
+    cardHand[this.state.currentPlayer][resource] = sum;
     this.setState({cardHand: cardHand});
     let monopoly = document.getElementsByClassName('monopoly');
     for (let i = 0; i < monopoly.length; i ++) {
