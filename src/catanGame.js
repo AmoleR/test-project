@@ -98,7 +98,7 @@ class CatanGame extends Component {
         * Index is the turn number while placing the initial settlements
         * Value is the player to place thier settlement
       */
-      colorOrder: [0, 0, -1],
+      colorOrder: [0, 1, 2, 3, 3, 2, 1, 0, -1],
       /*
         * this.state.colorPosition is an integer
         * It is a counter for the array colorOrder
@@ -889,7 +889,6 @@ class CatanGame extends Component {
     this.setState({cardHand: cardHand});
     if (!this.state.yearOfPlenty) {
       let toTrade = document.getElementsByClassName('toTradePart2');
-      let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
       for (let i = 0; i < toTrade.length; i ++) {
         toTrade[i].style.display = 'none';
       }
@@ -900,7 +899,6 @@ class CatanGame extends Component {
     }
     else if (this.state.yearOfPlentyPart === 2) {
       let toTrade = document.getElementsByClassName('toTradePart2');
-      let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
       for (let i = 0; i < toTrade.length; i ++) {
         toTrade[i].style.display = 'none';
       }
@@ -1571,27 +1569,27 @@ class CatanGame extends Component {
     let cards_display = [];
     for (let i = 0; i < cards[0]; i++) {
       cards_display.push(
-        <img style = {{width: 150, resize: 'contain'}} src={ore} alt="my image"/>
+        <img style = {{width: 150, resize: 'contain'}} src={ore} alt=" "/>
       );
     }
     for (let i = 0; i < cards[1]; i++) {
       cards_display.push(
-        <img style = {{width: 150, resize: 'contain'}} src={wheat} alt="my image"/>
+        <img style = {{width: 150, resize: 'contain'}} src={wheat} alt=" "/>
       );
     }
     for (let i = 0; i < cards[2]; i++) {
       cards_display.push(
-        <img style = {{width: 150, resize: 'contain'}} src={wood} alt="my image"/>
+        <img style = {{width: 150, resize: 'contain'}} src={wood} alt=" "/>
       )
     }
     for (let i = 0; i < cards[3]; i++) {
       cards_display.push(
-        <img style = {{width: 150, resize: 'contain'}} src={sheep} alt="my image"/>
+        <img style = {{width: 150, resize: 'contain'}} src={sheep} alt=" "/>
       );
     }
     for (let i = 0; i < cards[4]; i++) {
       cards_display.push(
-        <img style = {{width: 150, resize: 'contain'}} src={brick} alt="my image"/>
+        <img style = {{width: 150, resize: 'contain'}} src={brick} alt=" "/>
       );
     }
     return cards_display;
@@ -1726,31 +1724,31 @@ class CatanGame extends Component {
           <div>
           <div style = {{display: 'flex', flexFlow: 'row nowrap'}}>
             <div>
-                <img style = {{width: 150, resize: 'contain'}} src={ore} alt="my image"/>
+                <img style = {{width: 150, resize: 'contain'}} src={ore} alt=" "/>
               <div>
                 {this.state.cardHand[this.state.currentPlayer][0]}
               </div>
             </div>
             <div>
-                <img style = {{width: 150, resize: 'contain'}} src={wheat} alt="my image"/>
+                <img style = {{width: 150, resize: 'contain'}} src={wheat} alt=" "/>
               <div>
                 {this.state.cardHand[this.state.currentPlayer][1]}
               </div>
             </div>
             <div>
-                <img style = {{width: 150, resize: 'contain'}} src={wood} alt="my image"/>
+                <img style = {{width: 150, resize: 'contain'}} src={wood} alt=" "/>
               <div>
                 {this.state.cardHand[this.state.currentPlayer][2]}
               </div>
             </div>
             <div>
-                <img style = {{width: 150, resize: 'contain'}} src={sheep} alt="my image"/>
+                <img style = {{width: 150, resize: 'contain'}} src={sheep} alt=" "/>
               <div>
                 {this.state.cardHand[this.state.currentPlayer][3]}
               </div>
             </div>
             <div>
-                <img style = {{width: 150, resize: 'contain'}} src={brick} alt="my image"/>
+                <img style = {{width: 150, resize: 'contain'}} src={brick} alt=" "/>
               <div>
                 {this.state.cardHand[this.state.currentPlayer][4]}
               </div>

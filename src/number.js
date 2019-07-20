@@ -58,9 +58,6 @@ function value(letter) {
 }
 
 class Number extends Component{
-    constructor () {
-        super();
-    }
     render () {
         if(this.props.robberHex === this.props.id) {
           return (

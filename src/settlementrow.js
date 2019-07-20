@@ -2,9 +2,6 @@ import Settlement from './settlement.js';
 import React, { Component } from 'react';
 
 class SettlementRow extends Component{
-    constructor () {
-        super();
-    }
     render () {
         if(this.props.verticalMargins === null) {
             this.props.verticalMargins = '0px'

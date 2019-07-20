@@ -1,7 +1,6 @@
 import React from 'react';
 import Hexagon from './hexagon.js';
 import HexagonRow from './hexagonrow.js';
-import Settlement from './settlement.js';
 import Number from './number.js';
 import './howToPlay.css';
 import FancyButton from './fancyButton.js';
@@ -12,7 +11,7 @@ class HowToPlay extends React.Component {
     return(
       <div id="background">
         <div>
-          <img style = {{width: '95vw'}} src = 'http://snowconmaine.com/main/wp-content/uploads/2018/01/catan2018.png'/>
+          <img style = {{width: '95vw'}} src = 'http://snowconmaine.com/main/wp-content/uploads/2018/01/catan2018.png' alt=" "/>
         </div>
         <h1>How To Play</h1>
         <br />
@@ -96,9 +95,9 @@ class HowToPlay extends React.Component {
           <li>Settlements. A settlement has to be built next to a road. To build a settlement costs one wheat, one wood, one sheep, and one brick. Note no two settlements can be on top of each other or seperated by a road.</li>
           <div style={{textAlign: 'center'}}>
             <div style={{marginLeft: '264px'}} >
-              <Hexagon id={0} handler = {() => {return false}} id={0} commodityType={3} letter={'G'} />
+              <Hexagon id={0} handler = {() => {return false}} commodityType={3} letter={'G'} />
             </div>
-            <HexagonRow id={[0, 0]} handler = {() => {return false}} id = {[0, 0]} commodityArray = {[4, 0]} letterArray = {['H', 'I']}/>
+            <HexagonRow id={[0, 0]} handler = {() => {return false}} commodityArray = {[4, 0]} letterArray = {['H', 'I']}/>
             <div style={{position: 'relative'}}>
               <div style={{ width: '8px', height: '90px', marginTop: '-223px', marginLeft: '305px', float: 'left', transform: 'rotate(120deg)', backgroundColor: 'red', marginRight: '2px', cursor: 'crosshair'}} ></div>
               <div style = {{backgroundColor: 'red', border: '3px solid red', boxShadow: '2px 2px 5px 0px red', height: '30px', width: '30px', borderRadius: '50%', display: 'flex', marginTop: '-170px', marginLeft: '335px', zIndex: '300', float: 'left'}}></div>
@@ -109,7 +108,7 @@ class HowToPlay extends React.Component {
             <div style={{marginLeft: '264px'}} >
               <Hexagon id={0} commodityType={1} letter={'J'} />
             </div>
-            <HexagonRow id={[0, 0]}  handler = {() => {return false}} id = {[0, 0]} commodityArray = {[3, 2]} letterArray = {['K', 'L']}/>
+            <HexagonRow id={[0, 0]}  handler = {() => {return false}} commodityArray = {[3, 2]} letterArray = {['K', 'L']}/>
             <div style={{position: 'relative'}}>
               <div style={{ width: '8px', height: '90px', marginTop: '-223px', marginLeft: '305px', float: 'left', transform: 'rotate(120deg)', backgroundColor: 'blue', marginRight: '2px', cursor: 'crosshair'}} ></div>
               <div style = {{backgroundColor: 'blue', border: '3px solid blue', boxShadow: '2px 2px 5px 0px blye', height: '30px', width: '30px', display: 'flex', marginTop: '-170px', marginLeft: '335px', zIndex: '300', float: 'left'}}></div>

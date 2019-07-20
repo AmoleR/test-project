@@ -81,27 +81,27 @@ class Settlement extends Component{
           if (this.props.fillColor[this.props.id] === 4) {
               if (this.props.color === 4) {
                   return (
-                      <div style={{borderRadius: '0%'}} id={'settlement' + this.props.id} className = 'city' style = {{display: seeSettlement, backgroundColor: '#ffffff',
+                      <div id={'settlement' + this.props.id} className = 'city' style = {{display: seeSettlement, backgroundColor: '#ffffff',
                       border: '3px solid ' + playerColors[this.props.color],
                       boxShadow: '2px 2px 5px 0px '  + playerRGB[this.props.color], marginLeft: this.props.marginLeft,
-                      marginTop: this.props.marginTop}} onClick={this.fillSettlement} ></div>
+                      marginTop: this.props.marginTop, borderRadius: '0%'}} onClick={this.fillSettlement} ></div>
                   );
               }
               else {
                   return (
-                      <div style={{borderRadius: '0%'}} id={'settlement' + this.props.id} className = 'city' style = {{display: seeSettlement, backgroundColor: '#ffffff',
+                      <div id={'settlement' + this.props.id} className = 'city' style = {{display: seeSettlement, backgroundColor: '#ffffff',
                       border: '3px solid ' + playerColors[this.props.color],
                       boxShadow: '2px 2px 5px 0px '  + playerRGB[this.props.color], marginLeft: this.props.marginLeft,
-                      marginTop: this.props.marginTop}} onClick={this.fillSettlement} onMouseOver={this.hovering} onMouseOut={this.notHovering} ></div>
+                      marginTop: this.props.marginTop, borderRadius: '0%'}} onClick={this.fillSettlement} onMouseOver={this.hovering} onMouseOut={this.notHovering} ></div>
                   );
               }
           }
           else {
               return (
-                  <div style={{borderRadius: '0%'}} id={'settlement' + this.props.id} className = 'city' style = {{display: seeSettlement, backgroundColor: playerColors[this.props.fillColor[this.props.id]],
+                  <div id={'settlement' + this.props.id} className = 'city' style = {{display: seeSettlement, backgroundColor: playerColors[this.props.fillColor[this.props.id]],
                   border: '3px solid ' + playerColors[this.props.fillColor[this.props.id]],
                   boxShadow: '2px 2px 5px 0px '  + playerRGB[this.props.fillColor[this.props.id]], marginLeft: this.props.marginLeft,
-                  marginTop: this.props.marginTop}} onClick={this.fillSettlement}></div>
+                  marginTop: this.props.marginTop, borderRadius: '0%'}} onClick={this.fillSettlement}></div>
               );
           }
         }
