@@ -98,7 +98,7 @@ class CatanGame extends Component {
         * Index is the turn number while placing the initial settlements
         * Value is the player to place thier settlement
       */
-      colorOrder: [0, 1, 2, 3, 3, 2, 1, 0, -1],
+      colorOrder: [0, 0, -1],
       /*
         * this.state.colorPosition is an integer
         * It is a counter for the array colorOrder
@@ -498,12 +498,73 @@ class CatanGame extends Component {
         * It is false otherwise
       */
       turnStarted: false,
+      /*
+        * this.state.robberHex is an integer
+        * It is the resource hexagon number the robber is currently on
+      */
       robberHex: 7,
+      /*
+        * this.state.toMoveRobber is a boolean
+        * It is true if someone is currently moving the robber
+        * It is false otherwise
+      */
       toMoveRobber: false,
+      /*
+        * this.state.discardCards is a boolean
+        * It is true if someone is currently discarding cards
+        * It is false otherwise
+      */
       discardCards: false,
+      /*
+        * this.state.playersToDiscard is an integer
+        * It is amount of players who still have to discard cards
+      */
       playersToDiscard: 0,
+      /*
+        * this.state.currentDiscarder is an integer
+        * It is the player who is currently discarding their cards
+      */
       currentDiscarder: 4,
-      cardsLeft: 0
+      /*
+        * this.state.cardsLeft is an integer
+        * It is the amount of cards that the player with id this.state.currentDiscarder should leave
+      */
+      cardsLeft: 0,
+      /*
+        * this.state.cardsLeft is an JSON Object
+        * Each element is in the form key: value
+        * Key is the player id
+        * Value is an array
+        * Each element of value is the number of cards of a certain type of development card
+          * 0 is Knight
+          * 1 is Year of Plenty
+          * 2 is Monopoly
+          * 3 is Road Building
+          * 4 is Governer's House
+          * 5 is Market
+          * 6 is Library
+          * 7 is University
+          * 8 is Chapel
+      */
+      developmentCardsArray: {
+        0: [0, 0, 1, 0, 0, 0, 0, 0, 0],
+        1: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        2: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        3: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      /*
+        * this.state.yearOfPlenty is a boolean
+        * It is true if someone is using year of plenty
+        * It is false otherwise
+      */
+      yearOfPlenty: false,
+      /*
+        * this.state.yearOfPlentyPart is an integer
+        * It is dependent on the amount of times someone has clicked on yearOfPlenty
+          * 1 is no cards selected yet
+          * 2 is at least one card selected
+      */
+      yearOfPlentyPart: 2
     };
 
     //These are the binds of all of our functions
@@ -548,6 +609,9 @@ class CatanGame extends Component {
     this.takeACard = this.takeACard.bind(this);
     this.setDiscarder = this.setDiscarder.bind(this);
     this.discardCommodity = this.discardCommodity.bind(this);
+    this.buildDevelopmentCard = this.buildDevelopmentCard.bind(this);
+    this.openDevelopmentCardMenu = this.openDevelopmentCardMenu.bind(this);
+    this.monopoly = this.monopoly.bind(this);
 
     /*
       * We are setting each settlement as unfilled
@@ -823,14 +887,31 @@ class CatanGame extends Component {
     let cardHand = this.state.cardHand;
     cardHand[this.state.currentPlayer][resource] ++;
     this.setState({cardHand: cardHand});
-    let toTrade = document.getElementsByClassName('toTradePart2');
-    let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
-    for (let i = 0; i < toTrade.length; i ++) {
-      toTrade[i].style.display = 'none';
+    if (!this.state.yearOfPlenty) {
+      let toTrade = document.getElementsByClassName('toTradePart2');
+      let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+      for (let i = 0; i < toTrade.length; i ++) {
+        toTrade[i].style.display = 'none';
+      }
+      let toPlay = document.getElementsByClassName('playerTurn');
+      for (let i = 0; i < toPlay.length; i++) {
+        toPlay[i].style.display = 'flex';
+      }
     }
-    let toPlay = document.getElementsByClassName('playerTurn');
-    for (let i = 0; i < toPlay.length; i++) {
-      toPlay[i].style.display = 'flex';
+    else if (this.state.yearOfPlentyPart === 2) {
+      let toTrade = document.getElementsByClassName('toTradePart2');
+      let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+      for (let i = 0; i < toTrade.length; i ++) {
+        toTrade[i].style.display = 'none';
+      }
+      let toPlay = document.getElementsByClassName('playerTurn');
+      for (let i = 0; i < toPlay.length; i++) {
+        toPlay[i].style.display = 'flex';
+      }
+      this.setState({yearOfPlenty: false});
+    }
+    else {
+      this.setState({yearOfPlenty: true, yearOfPlentyPart: 2});
     }
   }
 
@@ -880,6 +961,7 @@ class CatanGame extends Component {
     document.getElementById('buildRoad').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('buildSettlement').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('buildCity').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('buildDevelopmentCard').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     document.getElementById('exitBuild').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
     let validRoads = this.updateValidRoadsAfterGame();
     if(this.state.cardHand[this.state.currentPlayer][2] < 1 || this.state.cardHand[this.state.currentPlayer][4] < 1 || validRoads <= 0) {
@@ -901,6 +983,12 @@ class CatanGame extends Component {
     }
     else {
       document.getElementById('buildCity').disabled = false;
+    }
+    if(this.state.cardHand[this.state.currentPlayer][0] < 1 || this.state.cardHand[this.state.currentPlayer][1] < 1 || this.state.cardHand[this.state.currentPlayer][3] < 1) {
+      document.getElementById('buildDevelopmentCard').disabled = true;
+    }
+    else {
+      document.getElementById('buildDevelopmentCard').disabled = false;
     }
   }
 
@@ -954,6 +1042,185 @@ class CatanGame extends Component {
     this.setState({color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints, choosingCities: true});
   }
 
+  buildDevelopmentCard() {
+    let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][0] -= 1;
+    cardHand[this.state.currentPlayer][1] -= 1;
+    cardHand[this.state.currentPlayer][3] -= 1;
+    let developmentCardValue = Math.floor(Math.random() * 25);
+    console.log(developmentCardValue);
+    let developmentCardsArray = this.state.developmentCardsArray;
+    if (developmentCardValue < 14) {
+      developmentCardsArray[this.state.currentPlayer][0] ++;
+    }
+    else if (developmentCardValue < 16) {
+      developmentCardsArray[this.state.currentPlayer][1] ++;
+    }
+    else if (developmentCardValue < 18) {
+      developmentCardsArray[this.state.currentPlayer][2] ++;
+    }
+    else if (developmentCardValue < 20) {
+      developmentCardsArray[this.state.currentPlayer][3] ++;
+    }
+    else if (developmentCardValue === 20) {
+      developmentCardsArray[this.state.currentPlayer][4] ++;
+    }
+    else if (developmentCardValue === 21) {
+      developmentCardsArray[this.state.currentPlayer][5] ++;
+    }
+    else if (developmentCardValue === 22) {
+      developmentCardsArray[this.state.currentPlayer][6] ++;
+    }
+    else if (developmentCardValue === 23) {
+      developmentCardsArray[this.state.currentPlayer][7] ++;
+    }
+    else if (developmentCardValue === 24) {
+      developmentCardsArray[this.state.currentPlayer][8] ++;
+    }
+    console.log(developmentCardsArray)
+    this.setState({cardHand: cardHand, developmentCardsArray: developmentCardsArray});
+    this.exitBuildMenu();
+  }
+
+  openDevelopmentCardMenu() {
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'none';
+    }
+    let toDevelop = document.getElementsByClassName('toPlayDevelopmentCard');
+    let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
+    for (let i = 0; i < toDevelop.length; i ++) {
+      toDevelop[i].style.display = 'flex';
+    }
+    document.getElementById('playKnight').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('playYearOfPlenty').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('playMonopoly').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('playRoadBuilding').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('playVictoryPoint').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    document.getElementById('exitDevelopmentCardMenu').style.border = '4px solid ' + playerColors[this.state.currentPlayer];
+    if(this.state.developmentCardsArray[this.state.currentPlayer][0] < 1) {
+      document.getElementById('playKnight').disabled = true;
+    }
+    else {
+      document.getElementById('playKnight').disabled = false;
+    }
+    if(this.state.developmentCardsArray[this.state.currentPlayer][1] < 1) {
+      document.getElementById('playYearOfPlenty').disabled = true;
+    }
+    else {
+      document.getElementById('playYearOfPlenty').disabled = false;
+    }
+    if(this.state.developmentCardsArray[this.state.currentPlayer][2] < 1) {
+      document.getElementById('playMonopoly').disabled = true;
+    }
+    else {
+      document.getElementById('playMonopoly').disabled = false;
+    }
+    if(this.state.developmentCardsArray[this.state.currentPlayer][3] < 1) {
+      document.getElementById('playRoadBuilding').disabled = true;
+    }
+    else {
+      document.getElementById('playRoadBuilding').disabled = false;
+    }
+    if((this.state.developmentCardsArray[this.state.currentPlayer][4] + this.state.developmentCardsArray[this.state.currentPlayer][5] + this.state.developmentCardsArray[this.state.currentPlayer][6] + this.state.developmentCardsArray[this.state.currentPlayer][7] + this.state.developmentCardsArray[this.state.currentPlayer][8]) < 1 ) {
+      document.getElementById('playVictoryPoint').disabled = true;
+    }
+    else {
+      document.getElementById('playVictoryPoint').disabled = false;
+    }
+  }
+
+  exitDevelopmentCardMenu() {
+      let toPlay = document.getElementsByClassName('playerTurn');
+      for (let i = 0; i < toPlay.length; i++) {
+        toPlay[i].style.display = 'flex';
+      }
+      let toDevelop = document.getElementsByClassName('toPlayDevelopmentCard');
+      for (let i = 0; i < toDevelop.length; i ++) {
+        toDevelop[i].style.display = 'none';
+      }
+  }
+
+  playKnight() {
+    let toDevelop = document.getElementsByClassName('toPlayDevelopmentCard');
+    for (let i = 0; i < toDevelop.length; i ++) {
+      toDevelop[i].style.display = 'none';
+    }
+    let developmentCardsArray = this.state.developmentCardsArray;
+    developmentCardsArray[this.state.currentPlayer][0] --;
+    this.moveRobber();
+  }
+
+  playYearOfPlenty() {
+    this.setState({yearOfPlenty: true, yearOfPlentyPart: 1});
+    let toTrade = document.getElementsByClassName('toTradePart2');
+    let toDevelop = document.getElementsByClassName('toPlayDevelopmentCard');
+    for (let i = 0; i < toDevelop.length; i ++) {
+      toDevelop[i].style.display = 'none';
+    }
+    for (let i = 0; i < toTrade.length; i ++) {
+      toTrade[i].style.display = 'flex';
+    }
+  }
+
+  playMonopoly() {
+    let monopoly = document.getElementsByClassName('monopoly');
+    let toDevelop = document.getElementsByClassName('toPlayDevelopmentCard');
+    for (let i = 0; i < toDevelop.length; i ++) {
+      toDevelop[i].style.display = 'none';
+    }
+    for (let i = 0; i < monopoly.length; i ++) {
+      monopoly[i].style.display = 'flex';
+    }
+  }
+
+  monopoly(resource) {
+    let cardHand = this.state.cardHand;
+    let sum = 0;
+    for (let i = 0; i < 4; i ++) {
+      sum += cardHand[i][resource];
+      if (this.state.currentPlayer !== i) {
+        cardHand[i] = 0;
+      }
+    }
+    cardHand[this.state.currentPlayer] = sum;
+    this.setState({cardHand: cardHand});
+    let monopoly = document.getElementsByClassName('monopoly');
+    for (let i = 0; i < monopoly.length; i ++) {
+      monopoly[i].style.display = 'none';
+    }
+    let toPlay = document.getElementsByClassName('playerTurn');
+    for (let i = 0; i < toPlay.length; i++) {
+      toPlay[i].style.display = 'flex';
+    }
+  }
+
+  playRoadBuilding() {
+    let developmentCardsArray = this.state.developmentCardsArray;
+    developmentCardsArray[this.state.currentPlayer][3] --;
+    let cardHand = this.state.cardHand;
+    cardHand[this.state.currentPlayer][2] ++;
+    cardHand[this.state.currentPlayer][4] ++;
+    this.setState({cardHand: cardHand, developmentCardsArray: developmentCardsArray});
+    this.buildRoad();
+    cardHand[this.state.currentPlayer][2] ++;
+    cardHand[this.state.currentPlayer][4] ++;
+    this.setState({cardHand: cardHand});
+    this.buildRoad();
+  }
+
+  playVictoryPoint() {
+    let developmentCardsArray = this.state.developmentCardsArray;
+    let victoryPoints = this.state.victoryPoints;
+    for (let i = 4; i < 9; i ++) {
+      for (let j = 0; j < developmentCardsArray[this.state.currentPlayer][i]; j ++) {
+        developmentCardsArray[this.state.currentPlayer][i] --;
+        victoryPoints[this.state.currentPlayer] ++;
+      }
+    }
+    this.setState({developmentCardsArray: developmentCardsArray, victoryPoints: victoryPoints});
+  }
+
   stopDiceRoll() {
     document.getElementById('changingDice').style.display = 'none';
     document.getElementById('fixedDice').style.display = 'flex';
@@ -980,6 +1247,7 @@ class CatanGame extends Component {
     }
     this.setState({discardCards: true, playersToDiscard: counter});
     if (counter === 0) {
+      this.setState({discardCards: false, playersToDiscard: counter});
       this.moveRobber();
     }
   }
@@ -987,7 +1255,7 @@ class CatanGame extends Component {
   setDiscarder(id) {
     document.getElementById('toDiscard').style.display = 'none';
     document.getElementById('discardResource').style.display = 'flex';
-    let cardsLeft = Math.floor(this.sum(this.state.cardHand[id])/2);
+    let cardsLeft = Math.ceil(this.sum(this.state.cardHand[id])/2);
     this.setState({currentDiscarder: id, cardsLeft: cardsLeft});
     let playerColors = ['purple', 'orange', 'blue', 'red', 'grey'];
     for (let i = 0; i < 5; i ++) {
@@ -1020,6 +1288,7 @@ class CatanGame extends Component {
         this.setState({playersToDiscard: playersToDiscard});
     }
     if (playersToDiscard === 0) {
+      this.setState({discardCards: false});
       this.moveRobber();
     }
     for (let i = 0; i < 5; i ++) {
@@ -1072,7 +1341,7 @@ class CatanGame extends Component {
   }
 
   robberMoved(id) {
-    if (!this.state.toMoveRobber) {
+    if (!this.state.toMoveRobber || this.state.discardCards) {
       return;
     }
     this.setState({toMoveRobber: false, robberHex: id});
@@ -1105,6 +1374,10 @@ class CatanGame extends Component {
       this.playTurn();
     }
     if (this.state.rollSum === 7) {
+      let toPlay = document.getElementsByClassName('playerTurn');
+      for (let i = 0; i < toPlay.length; i++) {
+        toPlay[i].style.display = 'none';
+      }
       this.discardCards();
       this.moveRobber();
     }
@@ -1692,6 +1965,11 @@ class CatanGame extends Component {
               margin: '4px', backgroundColor: 'white'}} onClick = {() => this.openBuildMenu()}>
                 Build
               </button>
+              <div className="break" />
+              <button id='build' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.openDevelopmentCardMenu()}>
+                Play Dev Card
+              </button>
             </div>
           </div>
 
@@ -1751,6 +2029,32 @@ class CatanGame extends Component {
             </div>
           </div>
 
+          <div className='monopoly' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+            <div style={{textAlign: 'center'}}>
+              <button id='get0' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.monopoly(0)}>
+                Get Ore
+              </button>
+              <button id='get1' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.monopoly(1)}>
+                Get Wheat
+              </button>
+              <button id='get2' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.monopoly(2)}>
+                Get Wood
+              </button>
+              <br />
+              <button id='get3' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.monopoly(3)}>
+                Get Sheep
+              </button>
+              <button id='get4' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.monopoly(4)}>
+                Get Brick
+              </button>
+            </div>
+          </div>
+
           <div className='toBuild' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
             <div style={{textAlign: 'center'}}>
               <button id='buildRoad' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
@@ -1761,14 +2065,48 @@ class CatanGame extends Component {
               margin: '4px', backgroundColor: 'white'}} onClick = {() => this.buildSettlement()}>
                 Build Settlement
               </button>
-              <br />
               <button id='buildCity' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
               margin: '4px', backgroundColor: 'white'}} onClick = {() => this.buildCity()}>
                 Build City
               </button>
+              <div className="break"></div>
+              <button id='buildDevelopmentCard' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.buildDevelopmentCard()}>
+                Build Dev Card
+              </button>
               <button id='exitBuild' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
               margin: '4px', backgroundColor: 'white'}} onClick = {() => this.exitBuildMenu()}>
                 Exit Build
+              </button>
+            </div>
+          </div>
+
+          <div className='toPlayDevelopmentCard' style={{display: 'none', flexFlow: 'row nowrap', marginLeft: '0%', marginTop: '-200px'}}>
+            <div style={{textAlign: 'center'}}>
+              <button id='playKnight' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.playKnight()}>
+                Play Knight
+              </button>
+              <button id='playYearOfPlenty' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.playYearOfPlenty()}>
+                Play Year of Plenty
+              </button>
+              <button id='playMonopoly' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.playMonopoly()}>
+                Play Monopoly
+              </button>
+              <div className="break"></div>
+              <button id='playRoadBuilding' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.playRoadBuilding()}>
+                Play Road Building
+              </button>
+              <button id='playVictoryPoint' style = {{fontSize: '14pt', float: 'left', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.playVictoryPoint()}>
+                Play All Victory Points
+              </button>
+              <button id='exitDevelopmentCardMenu' style = {{fontSize: '14pt', textAlign: 'center', display: 'float', height: '100px', width: '100px', borderRadius: '50%', border: '4px solid blue',
+              margin: '4px', backgroundColor: 'white'}} onClick = {() => this.exitDevelopmentCardMenu()}>
+                Exit Dev Card Menu
               </button>
             </div>
           </div>
