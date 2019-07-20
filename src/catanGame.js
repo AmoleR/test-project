@@ -14,6 +14,17 @@ import sheep from './assets/sheep.png';
 import wood from './assets/wood.png';
 import wheat from './assets/wheat.png';
 import ore from './assets/ore.png';
+import knight from './assets/knight.png'
+import monopoly from './assets/monopoly.png'
+import yearofplenty from './assets/yearofplenty.png'
+import roadbuilding from './assets/roadbuilding.png'
+import palace from './assets/palace.png'
+import market from './assets/market.png'
+import chapel from './assets/chapel.png'
+import university from './assets/university.png'
+import library from './assets/library.png'
+import Confetti from 'react-confetti';
+import { Redirect } from 'react-router-dom';
 
 //Function to shuffle arrays
 function shuffleArray(array) {
@@ -444,7 +455,7 @@ class CatanGame extends Component {
         * Index is the player id
         * Value is the amount of victory points the player with id key has
       */
-      victoryPoints: [2, 2, 2, 2],
+      victoryPoints: [9, 2, 2, 2],
       /*
         * this.state.numberList is an array
         * Index is the resource hexagon id
@@ -564,21 +575,21 @@ class CatanGame extends Component {
           * 1 is no cards selected yet
           * 2 is at least one card selected
       */
-      yearOfPlentyPart: 2,
-      twoToOneHarborList: {
-        0: [11, 16],
-        1: [33, 38],
-        2: [48, 52],
-        3: [1, 5],
-        4: [42, 46]
-      },
-      initialTradingValues: {
-        0: [4, 4, 4, 4, 4],
-        1: [4, 4, 4, 4, 4],
-        2: [4, 4, 4, 4, 4],
-        3: [4, 4, 4, 4, 4]
-      },
-      threeToOneHarborList: [0, 3, 10, 15, 26, 32, 47, 50]
+     yearOfPlentyPart: 2,
+     twoToOneHarborList: {
+       0: [11, 16],
+       1: [33, 38],
+       2: [48, 52],
+       3: [1, 5],
+       4: [42, 46]
+     },
+     initialTradingValues: {
+       0: [4, 4, 4, 4, 4],
+       1: [4, 4, 4, 4, 4],
+       2: [4, 4, 4, 4, 4],
+       3: [4, 4, 4, 4, 4]
+     },
+     threeToOneHarborList: [0, 3, 10, 15, 26, 32, 47, 50]
     };
 
     //These are the binds of all of our functions
@@ -616,6 +627,7 @@ class CatanGame extends Component {
     this.finishPlayerTurn = this.finishPlayerTurn.bind(this);
     this.sum = this.sum.bind(this);
     this.createButtons = this.createButtons.bind(this);
+    this.createDevButtons = this.createDevButtons.bind(this);
     this.discardCards = this.discardCards.bind(this);
     this.moveRobber = this.moveRobber.bind(this);
     this.robberMoved = this.robberMoved.bind(this);
@@ -850,6 +862,10 @@ class CatanGame extends Component {
       toPlay[i].style.display = 'none';
     }
     if (this.state.victoryPoints[0] >= 10 || this.state.victoryPoints[1] >= 10 || this.state.victoryPoints[2] >= 10 || this.state.victoryPoints[3] >= 10) {
+      console.log(this.state.victoryPoints);
+      document.getElementById('confetti').style.display = 'flex';
+      document.getElementById('playerCards').style.display = 'none';
+      document.getElementById('playerDevCards').style.display = 'none';
       return;
     }
     let toRollButton = document.getElementById('rollDiceButton');
@@ -1506,11 +1522,13 @@ class CatanGame extends Component {
         settlementType[id] = 2;
         this.setState({color: color, settlementplace: false, choosingCities: false});
       }
+
       else {
         settlementCurrentFill[id] = color;
         settlementVisibility[id] = true;
         this.setState({color: color, settlementplace: false});
       }
+
       for (let i = 0; i < 5; i ++) {
         if(this.state.twoToOneHarborList[i].includes(id)) {
           let initialTradingValues = this.state.initialTradingValues;
@@ -1655,6 +1673,56 @@ class CatanGame extends Component {
     return cards_display;
   }
 
+  createDevButtons (devcards) {
+    let devcards_display = []
+    for (let i = 0; i < devcards[0]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={knight} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[1]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={yearofplenty} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[2]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={monopoly} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[3]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={roadbuilding} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[4]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={market} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[5]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={chapel} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[6]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={palace} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[7]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={library} alt=" "/>
+      )
+    }
+    for (let i = 0; i < devcards[8]; i++) {
+      devcards_display.push(
+        <img style = {{height: 200, resize: 'contain'}} src={university} alt=" "/>
+      )
+    }
+    return devcards_display
+  }
+
   render() {
 
     let commodityList = ['2', '3', '1', '4', '0', '4', '3', '5', '2', '1',
@@ -1778,6 +1846,7 @@ class CatanGame extends Component {
     };
 
     let displayCards = (<div />);
+    let displayDevCards = (<div />);
 
     if(this.sum(this.state.cardHand[this.state.currentPlayer]) >= 10) {
       displayCards = (
@@ -1820,10 +1889,77 @@ class CatanGame extends Component {
     else {
       displayCards = (
         <div>
-        <div>
-          </div>
           <div style = {{display: 'flex', flexFlow: 'row nowrap'}}>
             {this.createButtons(this.state.cardHand[this.state.currentPlayer])}
+          </div>
+        </div>
+      );
+    }
+    if(this.sum(this.state.developmentCardsArray[this.state.currentPlayer]) >= 10) {
+      displayDevCards = (
+        <div style = {{display: 'flex', flexFlow: 'row nowrap'}}>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={knight} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][0]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={monopoly} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][1]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={roadbuilding} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][2]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={yearofplenty} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][3]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={market} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][4]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={chapel} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][5]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={palace} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][6]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={library} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][7]}
+            </div>
+          </div>
+          <div>
+            <img style = {{height: 200, resize: 'contain'}} src={university} alt=" "/>
+            <div>
+              {this.state.developmentCardsArray[this.state.currentPlayer][8]}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    else {
+      displayDevCards = (
+        <div>
+          <div style = {{display: 'flex', flexFlow: 'row nowrap'}}>
+            {this.createDevButtons(this.state.developmentCardsArray[this.state.currentPlayer])}
           </div>
         </div>
       );
@@ -1840,6 +1976,60 @@ class CatanGame extends Component {
               backgroundColor: '#2ba9db'}} />
             <div className="bigHexagonBottom" style={{borderLeft: '300px solid #2ba9db'}} />
 
+          </div>
+
+          <div style={{position: 'absolute', top: '34%', left: '23%'}} className='harbor'>
+            Ore
+            <br/>
+            2:1
+          </div>
+
+          <div style={{position: 'absolute', top: '67%', left: '23%'}} className='harbor'>
+            Wheat
+            <br/>
+            2:1
+          </div>
+
+          <div style={{position: 'absolute', top: '95%', left: '52%', transform: 'rotate(330deg)'}} className='harbor'>
+            Wood
+            <br/>
+            2:1
+          </div>
+
+          <div style={{position: 'absolute', top: '78.5%', left: '68.5%', transform: 'rotate(330deg)'}} className='harbor'>
+            Brick
+            <br/>
+            2:1
+          </div>
+
+          <div style={{position: 'absolute', top: '5.75%', left: '51.75%', transform: 'rotate(30deg)'}} className='harbor'>
+            Sheep
+            <br/>
+            2:1
+          </div>
+
+          <div style={{position: 'absolute', top: '5.75%', left: '33%', transform: 'rotate(330deg)'}} className='harbor'>
+            ?
+            <br/>
+            3:1
+          </div>
+
+          <div style={{position: 'absolute', top: '95%', left: '33%', transform: 'rotate(30deg)'}} className='harbor'>
+            ?
+            <br/>
+            3:1
+          </div>
+
+          <div style={{position: 'absolute', top: '50.5%', left: '78.5%'}} className='harbor'>
+            ?
+            <br/>
+            3:1
+          </div>
+
+          <div style={{position: 'absolute', top: '5.75%', left: '63%', transform: 'rotate(30deg)'}} className='harbor'>
+            ?
+            <br/>
+            3:1
           </div>
 
           <div style = {{display: 'inline-block', marginTop: '120px'}}>
@@ -2248,12 +2438,23 @@ class CatanGame extends Component {
             </div>
           </div>
 
-        <div style={{textAlign: 'center', position: 'absolute', top: '110%', left: 0, right: 0, margin: 'auto'}}>
+        <div id = 'playerCards' style={{textAlign: 'center', position: 'absolute', top: '110%', left: 0, right: 0, margin: 'auto'}}>
           <div style={{display: 'inline-block', position: 'relative'}}>
             {displayCards}
           </div>
         </div>
+        <div id = 'playerDevCards' style={{textAlign: 'center', position: 'absolute', top: '140%', left: 0, right: 0, margin: 'auto'}}>
+          <div style={{display: 'inline-block', position: 'relative'}}>
+            {displayDevCards}
+          </div>
         </div>
+        </div>
+        <div id='confetti' style = {{display: 'none'}}>
+          <Confetti style={{zIndex: '100'}}>
+            width={'100%'}
+            height={'100%'}
+          </Confetti>
+      </div>
       </div>
     );
   }
