@@ -14,17 +14,16 @@ import sheep from './assets/sheep.png';
 import wood from './assets/wood.png';
 import wheat from './assets/wheat.png';
 import ore from './assets/ore.png';
-import knight from './assets/knight.png'
-import monopoly from './assets/monopoly.png'
-import yearofplenty from './assets/yearofplenty.png'
-import roadbuilding from './assets/roadbuilding.png'
-import palace from './assets/palace.png'
-import market from './assets/market.png'
-import chapel from './assets/chapel.png'
-import university from './assets/university.png'
-import library from './assets/library.png'
+import knight from './assets/knight.png';
+import monopoly from './assets/monopoly.png';
+import yearofplenty from './assets/yearofplenty.png';
+import roadbuilding from './assets/roadbuilding.png';
+import palace from './assets/palace.png';
+import market from './assets/market.png';
+import chapel from './assets/chapel.png';
+import university from './assets/university.png';
+import library from './assets/library.png';
 import Confetti from 'react-confetti';
-import { Redirect } from 'react-router-dom';
 
 //Function to shuffle arrays
 function shuffleArray(array) {
@@ -455,7 +454,7 @@ class CatanGame extends Component {
         * Index is the player id
         * Value is the amount of victory points the player with id key has
       */
-      victoryPoints: [9, 2, 2, 2],
+      victoryPoints: [2, 2, 2, 2],
       /*
         * this.state.numberList is an array
         * Index is the resource hexagon id
@@ -589,7 +588,14 @@ class CatanGame extends Component {
        2: [4, 4, 4, 4, 4],
        3: [4, 4, 4, 4, 4]
      },
-     threeToOneHarborList: [0, 3, 10, 15, 26, 32, 47, 50]
+     threeToOneHarborList: [0, 3, 10, 15, 26, 32, 47, 50],
+     detailedVictoryPoints: {
+       0: [2, 0, 0],
+       1: [2, 0, 0],
+       2: [2, 0, 0],
+       3: [2, 0, 0]
+     },
+     developmentCardPlayHistory: []
     };
 
     //These are the binds of all of our functions
@@ -638,6 +644,7 @@ class CatanGame extends Component {
     this.buildDevelopmentCard = this.buildDevelopmentCard.bind(this);
     this.openDevelopmentCardMenu = this.openDevelopmentCardMenu.bind(this);
     this.monopoly = this.monopoly.bind(this);
+    this.renderTableData = this.renderTableData.bind(this);
 
     /*
       * We are setting each settlement as unfilled
@@ -1055,7 +1062,9 @@ class CatanGame extends Component {
     }
     let victoryPoints = this.state.victoryPoints;
     victoryPoints[this.state.currentPlayer] ++;
-    this.setState({color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints});
+    let detailedVictoryPoints = this.state.detailedVictoryPoints;
+    detailedVictoryPoints[this.state.currentPlayer][0] ++;
+    this.setState({detailedVictoryPoints: detailedVictoryPoints, color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints});
   }
 
   buildCity() {
@@ -1068,7 +1077,11 @@ class CatanGame extends Component {
     }
     let victoryPoints = this.state.victoryPoints;
     victoryPoints[this.state.currentPlayer] ++;
-    this.setState({color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints, choosingCities: true});
+    let detailedVictoryPoints = this.state.detailedVictoryPoints;
+    detailedVictoryPoints[this.state.currentPlayer][0] --;
+    console.log(detailedVictoryPoints[this.state.currentPlayer][0])
+    detailedVictoryPoints[this.state.currentPlayer][1] ++;
+    this.setState({detailedVictoryPoints: detailedVictoryPoints, color: this.state.currentPlayer, settlementplace: true, cardHand: cardHand, victoryPoints: victoryPoints, choosingCities: true});
   }
 
   buildDevelopmentCard() {
@@ -1177,7 +1190,9 @@ class CatanGame extends Component {
     }
     let developmentCardsArray = this.state.developmentCardsArray;
     developmentCardsArray[this.state.currentPlayer][0] --;
-    this.setState({developmentCardsArray: developmentCardsArray});
+    let developmentCardPlayHistory = this.state.developmentCardPlayHistory;
+    developmentCardPlayHistory.push([this.state.currentPlayer, 'Knight']);
+    this.setState({developmentCardsArray: developmentCardsArray, developmentCardPlayHistory: developmentCardPlayHistory});
     this.moveRobber();
   }
 
@@ -1193,7 +1208,9 @@ class CatanGame extends Component {
     }
     let developmentCardsArray = this.state.developmentCardsArray;
     developmentCardsArray[this.state.currentPlayer][1] --;
-    this.setState({developmentCardsArray: developmentCardsArray});
+    let developmentCardPlayHistory = this.state.developmentCardPlayHistory;
+    developmentCardPlayHistory.push([this.state.currentPlayer, 'Year Of Plenty']);
+    this.setState({developmentCardsArray: developmentCardsArray, developmentCardPlayHistory: developmentCardPlayHistory});
   }
 
   playMonopoly() {
@@ -1207,7 +1224,9 @@ class CatanGame extends Component {
     }
     let developmentCardsArray = this.state.developmentCardsArray;
     developmentCardsArray[this.state.currentPlayer][2] --;
-    this.setState({developmentCardsArray: developmentCardsArray});
+    let developmentCardPlayHistory = this.state.developmentCardPlayHistory;
+    developmentCardPlayHistory.push([this.state.currentPlayer, 'Monopoly']);
+    this.setState({developmentCardsArray: developmentCardsArray, developmentCardPlayHistory: developmentCardPlayHistory});
   }
 
   monopoly(resource) {
@@ -1237,7 +1256,9 @@ class CatanGame extends Component {
     let cardHand = this.state.cardHand;
     cardHand[this.state.currentPlayer][2] ++;
     cardHand[this.state.currentPlayer][4] ++;
-    this.setState({cardHand: cardHand, developmentCardsArray: developmentCardsArray});
+    let developmentCardPlayHistory = this.state.developmentCardPlayHistory;
+    developmentCardPlayHistory.push([this.state.currentPlayer, 'Road Building']);
+    this.setState({cardHand: cardHand, developmentCardsArray: developmentCardsArray, developmentCardPlayHistory: developmentCardPlayHistory});
     this.buildRoad();
     cardHand[this.state.currentPlayer][2] ++;
     cardHand[this.state.currentPlayer][4] ++;
@@ -1248,13 +1269,31 @@ class CatanGame extends Component {
   playVictoryPoint() {
     let developmentCardsArray = this.state.developmentCardsArray;
     let victoryPoints = this.state.victoryPoints;
+    let detailedVictoryPoints = this.state.detailedVictoryPoints;
+    let developmentCardPlayHistory = this.state.developmentCardPlayHistory;
     for (let i = 4; i < 9; i ++) {
       for (let j = 0; j < developmentCardsArray[this.state.currentPlayer][i]; j ++) {
         developmentCardsArray[this.state.currentPlayer][i] --;
         victoryPoints[this.state.currentPlayer] ++;
+        detailedVictoryPoints[this.state.currentPlayer][2] ++;
+        if (i === 4) {
+          developmentCardPlayHistory.push([this.state.currentPlayer, 'Palace']);
+        }
+        else if (i === 5) {
+          developmentCardPlayHistory.push([this.state.currentPlayer, 'Market']);
+        }
+        else if (i === 6) {
+          developmentCardPlayHistory.push([this.state.currentPlayer, 'Library']);
+        }
+        else if (i === 7) {
+          developmentCardPlayHistory.push([this.state.currentPlayer, 'University']);
+        }
+        else if (i === 8) {
+          developmentCardPlayHistory.push([this.state.currentPlayer, 'Chapel']);
+        }
       }
     }
-    this.setState({developmentCardsArray: developmentCardsArray, victoryPoints: victoryPoints});
+    this.setState({developmentCardsArray: developmentCardsArray, victoryPoints: victoryPoints, detailedVictoryPoints: detailedVictoryPoints, developmentCardPlayHistory: developmentCardPlayHistory});
     let toPlay = document.getElementsByClassName('playerTurn');
     let toDevelop = document.getElementsByClassName('toPlayDevelopmentCard');
     for (let i = 0; i < toDevelop.length; i ++) {
@@ -1273,6 +1312,8 @@ class CatanGame extends Component {
     if (!this.state.turnStarted) {
       this.finishPlayerTurn();
     }
+    document.getElementById('playerCards').style.display =  'flex';
+    document.getElementById('playerDevCards').style.display =  'flex';
   }
 
   discardCards() {
@@ -1467,6 +1508,8 @@ class CatanGame extends Component {
     currentPlayer = currentPlayer % 4;
     this.rollDice(currentPlayer);
     this.setState({turnStarted: false, currentPlayer: currentPlayer});
+    document.getElementById('playerCards').style.display =  'none';
+    document.getElementById('playerDevCards').style.display =  'none';
   }
 
   interpretRoll(roll) {
@@ -1506,6 +1549,8 @@ class CatanGame extends Component {
     this.passAllCards();
     this.rollDice(0);
     document.getElementById('diceValue').style.display = 'flex';
+    document.getElementById('detailedVictoryPoints').style.display = 'flex';
+    document.getElementById('developmentCardPlayHistory').style.display = 'flex';
   }
 
   updateSettlementFilled(id, color) {
@@ -1528,7 +1573,6 @@ class CatanGame extends Component {
         settlementVisibility[id] = true;
         this.setState({color: color, settlementplace: false});
       }
-
       for (let i = 0; i < 5; i ++) {
         if(this.state.twoToOneHarborList[i].includes(id)) {
           let initialTradingValues = this.state.initialTradingValues;
@@ -1721,6 +1765,30 @@ class CatanGame extends Component {
       )
     }
     return devcards_display
+  }
+
+  renderTableData() {
+    let toReturn = (<tr />);
+    let players = ['Purple', 'Orange', 'Blue', 'Red'];
+     for (let i = 0; i < this.state.developmentCardPlayHistory.length; i ++) {
+       if (i === 0) {
+         toReturn = (
+           <tr>
+            <td>{players[this.state.developmentCardPlayHistory[i][0]]}</td>
+             <td>{this.state.developmentCardPlayHistory[i][1]}</td>
+           </tr>
+         );
+       }
+       else {
+         toReturn += (
+           <tr>
+            <td>{players[this.state.developmentCardPlayHistory[i][0]]}</td>
+            <td>{this.state.developmentCardPlayHistory[i][1]}</td>
+           </tr>
+         );
+       }
+     }
+     return toReturn;
   }
 
   render() {
@@ -2448,13 +2516,68 @@ class CatanGame extends Component {
             {displayDevCards}
           </div>
         </div>
+
+        <div id='detailedVictoryPoints' style={{textAlign: 'center', position: 'absolute', top: '170%', left: 0, right: 0, margin: 'auto', display: 'none'}}>
+          <table>
+            <tr>
+              <th>Player</th>
+              <th>Settlements</th>
+              <th>Cities</th>
+              <th>Dev Card Victory Points</th>
+              <th>Total</th>
+            </tr>
+            <tr>
+              <td>Purple</td>
+              <td>{this.state.detailedVictoryPoints[0][0]}</td>
+              <td>{this.state.detailedVictoryPoints[0][1]}</td>
+              <td>{this.state.detailedVictoryPoints[0][2]}</td>
+              <td>{this.state.victoryPoints[0]}</td>
+            </tr>
+            <tr>
+              <td>Orange</td>
+              <td>{this.state.detailedVictoryPoints[1][0]}</td>
+              <td>{this.state.detailedVictoryPoints[1][1]}</td>
+              <td>{this.state.detailedVictoryPoints[1][2]}</td>
+              <td>{this.state.victoryPoints[1]}</td>
+            </tr>
+            <tr>
+              <td>Blue</td>
+              <td>{this.state.detailedVictoryPoints[2][0]}</td>
+              <td>{this.state.detailedVictoryPoints[2][1]}</td>
+              <td>{this.state.detailedVictoryPoints[2][2]}</td>
+              <td>{this.state.victoryPoints[2]}</td>
+            </tr>
+            <tr>
+              <td>Purple</td>
+              <td>{this.state.detailedVictoryPoints[3][0]}</td>
+              <td>{this.state.detailedVictoryPoints[3][1]}</td>
+              <td>{this.state.detailedVictoryPoints[3][2]}</td>
+              <td>{this.state.victoryPoints[3]}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div id='developmentCardPlayHistory' style={{textAlign: 'center', position: 'absolute', top: '200%', left: 0, right: 0, margin: 'auto', display: 'none'}}>
+          <table>
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Dev Card Played</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.renderTableData()}
+            </tbody>
+          </table>
+        </div>
+
         </div>
         <div id='confetti' style = {{display: 'none'}}>
           <Confetti style={{zIndex: '100'}}>
             width={'100%'}
             height={'100%'}
           </Confetti>
-      </div>
+          </div>
       </div>
     );
   }
